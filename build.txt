@@ -1,0 +1,3 @@
+displayName = Spellblade Class
+author = TheZenNinja
+version = 0.1
