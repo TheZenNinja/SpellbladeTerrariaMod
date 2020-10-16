@@ -7,9 +7,11 @@ using Terraria.ModLoader;
 
 namespace Spellblade.Items.Weapons
 {
+	/*
 	public class TestSword : SpellswordBase
 	{
-		public override void SetStaticDefaults()
+        protected override int projectileID => Terraria.ID.ProjectileID.EnchantedBeam;
+        public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Test Sword");
 			Tooltip.SetDefault("This weapon does something special with <right>.");
@@ -18,8 +20,7 @@ namespace Spellblade.Items.Weapons
 		public override void SetDefaults()
 		{
 			SetCustomDamageData(8, 20, 10, 30, 12);
-			projectileID = ProjectileID.EnchantedBeam;
-			SetCustomDefaults();
+			SetBasicCustomDefaults();
 
 
 			item.damage = swingDamage;
@@ -74,5 +75,5 @@ namespace Spellblade.Items.Weapons
 			}
 		}
 
-	}
+	}*/
 }

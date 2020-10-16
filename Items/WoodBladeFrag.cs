@@ -1,4 +1,7 @@
-﻿using Terraria.ID;
+﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace Spellblade.Items
@@ -10,12 +13,14 @@ namespace Spellblade.Items
 			Tooltip.SetDefault("This is a modded item.");
 		}
 
+		
+
 		public override void SetDefaults()
 		{
 			item.width = 20;
 			item.height = 20;
 			item.maxStack = 999;
-			item.value = 100;
+			item.value = Item.buyPrice(silver:10);
 			item.rare = ItemRarityID.Blue;
 		}
 

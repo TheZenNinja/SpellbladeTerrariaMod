@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework;
+using Spellblade.Projectiles;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -9,51 +13,86 @@ namespace Spellblade.Items.Weapons
 {
     public abstract class SpellswordBase : ModItem
 	{
-		protected int projectileID = ProjectileID.EnchantedBeam;
+		public override bool CloneNewInstances => true;
 
-		protected int swingDamage = 8;
+		#region basic attribues
+		protected virtual int critChance { get; } = 2;
+		protected virtual float scale { get; } = 1f;
+		protected virtual int width { get; } = 32;
+		protected virtual int height { get; } = 32;
+		protected abstract int value { get; }
+        protected abstract int rarity { get; }
+		#endregion
+        
+		#region melee attribues
+        protected abstract int swingDamage { get; }
+		protected abstract float swingKnockback { get; }
+		protected abstract int swingUseTime { get; }
+		protected virtual Terraria.Audio.LegacySoundStyle swingSound { get; } = SoundID.Item1;
+		protected virtual bool autoSwing { get; } = true;
+		protected abstract int onHitManaRegen { get; }
+		#endregion
 
-		protected int swingUseTime = 20;
-		protected int shootUseTime = 30;
+		#region casting attribues
+		protected abstract int manaCost { get; }
+		protected abstract int castUseTime { get; }
+		protected virtual int castReuseDelay { get; } = -1;
+		protected virtual Terraria.Audio.LegacySoundStyle castSound { get; } = SoundID.Item9;
+		protected abstract int projectileID { get; }
+		protected abstract int projectileDamage { get; }
+		protected abstract float projectileKockback { get; }
+		protected abstract int projectileSpeed { get; }
+		protected virtual bool autoCast { get; } = true;
+		#endregion
 
+		#region Weapon Arts
+		public virtual int arcaneCost { get; } = 0;
+		public virtual bool hasWeaponArt { get; } = false;
+		protected virtual LegacySoundStyle weaponArtSound { get; } = null;
+		#endregion
 
-		protected int projectileDamage = 10;
-		protected int projectileSpeed = 12;
-
-		public override void SetStaticDefaults()
+		public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
-			DisplayName.SetDefault("You shouldn't be able to see this");
-			Tooltip.SetDefault("This weapon does something special with <right>.");
-		}
-		protected void SetCustomDamageData(int swingDmg, int swingUseTime, int shootDmg, int shootUseTime, int shootProjectileSpeed)
-		{
-			this.swingDamage = swingDmg;
-			this.swingUseTime = swingUseTime;
+			TooltipLine line = new TooltipLine(mod, "Face", Spellblade.classTitleText)
+			{
+				overrideColor = Spellblade.classTextColor
+			};
+			tooltips.Insert(1, line);
 
-			this.projectileDamage = shootDmg;
-			this.shootUseTime = shootUseTime;
+			Player p = Main.player[Main.myPlayer];
+			item.damage = swingDamage;
+			int swingDmg = p.GetWeaponDamage(item);
+			item.damage = projectileDamage;
+			int projDmg = p.GetWeaponDamage(item);
 
-			this.projectileSpeed = 12;
+			TooltipLine damageReplacement = new TooltipLine(mod, "Damage", $"{swingDmg} ({projDmg}) Magic Damage");
+			int dmgIndex = tooltips.FindIndex(t => t.Name == "Damage");
+			tooltips[dmgIndex] = damageReplacement;
+
+
+			TooltipLine manaRestore = new TooltipLine(mod, "Tooltip0", $"Restores {onHitManaRegen} Mana on Melee Hit");
+			tooltips.Add(manaRestore);
 		}
-		protected void SetCustomDefaults()
+
+		protected void SetBasicCustomDefaults()
 		{
 			item.damage = swingDamage;
 			item.magic = true;
-			item.knockBack = 6;
-			item.mana = 10;
-			item.crit = 6;
+			item.knockBack = swingKnockback;
+			item.mana = manaCost;
+			item.crit = critChance;
 
-			item.scale = 0.5f;
-			item.width = 40;
-			item.height = 40;
+			item.scale = scale;
+			item.width = width;
+			item.height = height;
 
 			item.useTime = swingUseTime;
 			item.useAnimation = swingUseTime;
 			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.autoReuse = true;
+			item.autoReuse = autoSwing;
 
-			item.value = Item.buyPrice(silver:20);
-			item.rare = ItemRarityID.Blue;
+			item.value = value;
+			item.rare = rarity;
 
 			item.shoot = projectileID;
 			item.shootSpeed = projectileSpeed;
@@ -62,41 +101,63 @@ namespace Spellblade.Items.Weapons
 		public override bool AltFunctionUse(Player player) => true;
 		public override bool CanUseItem(Player player)
 		{
-			if (player.altFunctionUse == 2)
+			bool canNormallyUseItem = base.CanUseItem(player);
+			if (!canNormallyUseItem)
+				return false;
+			if (player.GetManaCost(item) > player.statMana)
+				return false;
+			if (player.altFunctionUse == 2) //right click
 			{
-				Item.staff[item.type] = true;
-				item.useStyle = ItemUseStyleID.HoldingOut;
-				item.useTime = shootUseTime;
-				item.UseSound = SoundID.Item9;
-				item.useAnimation = shootUseTime;
-				item.reuseDelay = shootUseTime;
-				item.noMelee = true;
-				item.damage = projectileDamage;
-				item.shoot = projectileID;
-				item.useTurn = false;
+				OnRightClick(player);
 			}
-			else
+			else //left click
 			{
-				Item.staff[item.type] = false;
-				item.useStyle = ItemUseStyleID.SwingThrow;
-				item.useTime = swingUseTime;
-				item.UseSound = SoundID.Item1;
-				item.useAnimation = swingUseTime;
-				item.damage = swingDamage;
-				item.reuseDelay = 0;
-				item.noMelee = false;
-				player.manaCost = 0;
-				player.manaRegenDelayBonus = 0;
-				item.shoot = ProjectileID.None;
-				item.useTurn = true;
+				OnLeftClick(player);	
 			}
-			return base.CanUseItem(player);
+			return true;
 		}
+		public virtual void OnLeftClick(Player player)
+		{
+			Item.staff[item.type] = false;
+			item.useStyle = ItemUseStyleID.SwingThrow;
+			item.useTime = swingUseTime;
+			item.useAnimation = swingUseTime;
+			item.UseSound = swingSound;
+			item.damage = swingDamage;
+			item.reuseDelay = 0;
+			item.noMelee = false;
+			item.knockBack = swingKnockback;
+			//to prevent mana use when swinging
+			player.manaCost = 0;
+			player.manaRegenDelayBonus = 0;
 
+			item.shoot = ProjectileID.None;
+			item.useTurn = true;
+			item.autoReuse = autoSwing;
+		}
+		public virtual void OnRightClick(Player player)
+		{
+			Item.staff[item.type] = true;
+			item.useStyle = ItemUseStyleID.HoldingOut;
+			item.useTime = castUseTime;
+			item.UseSound = castSound;
+			item.useAnimation = castUseTime;
+
+			if (castReuseDelay == -1)
+				item.reuseDelay = castUseTime;
+			else
+				item.reuseDelay = castReuseDelay;
+
+			item.noMelee = true;
+			item.damage = projectileDamage;
+			item.shoot = projectileID;
+			item.useTurn = false;
+			item.autoReuse = autoCast;
+		}
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
 		{
 			if (player.altFunctionUse != 2)
-				player.statMana += (int)Math.Round((float)damage / 2);
+				player.statMana += (int)Math.Round((float)damage / swingDamage * onHitManaRegen);
 		}
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
@@ -114,6 +175,12 @@ namespace Spellblade.Items.Weapons
 			speedX = speed.X;
 			speedY = speed.Y;
 			return true;
+		}
+
+		public virtual void WeaponArt(Player player)
+		{
+			if (!hasWeaponArt)
+				return;
 		}
 	}
 }

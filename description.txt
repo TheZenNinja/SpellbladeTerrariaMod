@@ -1,1 +1,3 @@
 Adds the spellblade subclass, which is a semi-melee magic scaling class.
+
+Very WIP and most content hasnt been added yet.
