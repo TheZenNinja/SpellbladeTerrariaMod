@@ -37,11 +37,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Matthew\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\Spellblade\\Spellblade.csproj",
-      "projectName": "Spellblade",
-      "projectPath": "C:\\Users\\Matthew\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\Spellblade\\Spellblade.csproj",
+      "projectUniqueName": "C:\\Users\\Matthew\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SpellbladeMod\\SpellbladeMod.csproj",
+      "projectName": "SpellbladeMod",
+      "projectPath": "C:\\Users\\Matthew\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SpellbladeMod\\SpellbladeMod.csproj",
       "packagesPath": "C:\\Users\\Matthew\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Matthew\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\Spellblade\\obj\\",
+      "outputPath": "C:\\Users\\Matthew\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\SpellbladeMod\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

@@ -6,9 +6,9 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons.Wooden
+namespace SpellbladeMod.Items.Weapons.Wooden
 {
-    public class WoodenBlade : SpellswordBase
+    public class WoodenBlade : SpellbladeBase
     {
         protected override int value => Item.buyPrice(copper: 50);
 		protected override int rarity => ItemRarityID.White;

@@ -6,7 +6,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Projectiles
+namespace SpellbladeMod.Projectiles
 {
     public class MagicSwordProjectile : ModProjectile
     {

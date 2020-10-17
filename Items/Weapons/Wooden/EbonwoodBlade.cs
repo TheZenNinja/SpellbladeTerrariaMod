@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using SpellbladeMod.Projectiles;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons.Wooden
+namespace SpellbladeMod.Items.Weapons.Wooden
 {
-    public class EbonwoodBlade : SpellswordBase
+    public class EbonwoodBlade : SpellbladeBase
     {
         protected override int value => Item.buyPrice(copper: 50);
 		protected override int rarity => ItemRarityID.White;
@@ -21,7 +22,7 @@ namespace Spellblade.Items.Weapons.Wooden
         protected override int manaCost => 5;
         protected override int castUseTime => 26;
         protected override LegacySoundStyle castSound => new LegacySoundStyle(2,65);
-        protected override int projectileID => mod.ProjectileType("CorruptBall");
+        protected override int projectileID => ModContent.ProjectileType<CorruptBall>();
         protected override int projectileDamage => 12;
         protected override float projectileKockback => 6;
         protected override int projectileSpeed => 10;

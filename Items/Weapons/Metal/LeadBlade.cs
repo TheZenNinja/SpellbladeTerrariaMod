@@ -8,9 +8,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons.Metal
+namespace SpellbladeMod.Items.Weapons.Metal
 {
-    class LeadBlade : SpellswordBase
+    class LeadBlade : SpellbladeBase
     {
         protected override int value => Item.buyPrice(silver: 6);
         protected override int rarity => ItemRarityID.Green;

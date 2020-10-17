@@ -1,13 +1,14 @@
-﻿using System;
+﻿using SpellbladeMod.Projectiles;
+using System;
 using System.Collections.Generic;
 
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons.Metal
+namespace SpellbladeMod.Items.Weapons.Metal
 {
-    class CopperBlade : SpellswordBase
+    class CopperBlade : SpellbladeBase
     {
         protected override int value => Item.sellPrice(silver:1);
         protected override int rarity => ItemRarityID.Green;
@@ -19,7 +20,7 @@ namespace Spellblade.Items.Weapons.Metal
 
         protected override int manaCost => 10;
         protected override int castUseTime => 30;
-        protected override int projectileID => mod.ProjectileType("FriendlyLightning");
+        protected override int projectileID => ModContent.ProjectileType<FriendlyLightning>();
         protected override int projectileDamage => 10;
         protected override float projectileKockback => 2;
         protected override int projectileSpeed => 10;

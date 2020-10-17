@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 
-namespace Spellblade.Projectiles
+namespace SpellbladeMod.Projectiles
 {
     public class MegaSword : ModProjectile
 	{
@@ -38,19 +38,22 @@ namespace Spellblade.Projectiles
 		}
 		public override void AI()
 		{
-			if (projectile.timeLeft <= 10)
+			if (Main.myPlayer == projectile.owner)
+			{
+				projectile.netUpdate = true;
+			}
+				if (projectile.timeLeft <= 10)
 				projectile.ai[0] += MathHelper.ToRadians(2f) * dir;
-			else if (projectile.timeLeft <= 40)
+				else if (projectile.timeLeft <= 40)
 				projectile.ai[0] += MathHelper.ToRadians(6f) * dir;
-			else if (projectile.timeLeft <= 45)
+				else if (projectile.timeLeft <= 45)
 				projectile.ai[0] += MathHelper.ToRadians(2f) * dir;
-			
-			Player player = Main.player[projectile.owner];
-			projectile.Center = player.MountedCenter + hitboxOffset * dir;
-			projectile.position.X += player.width / 2 * dir;
-			projectile.spriteDirection = dir;
-			projectile.rotation = projectile.ai[0];
 
+				Player player = Main.player[projectile.owner];
+				projectile.Center = player.MountedCenter + hitboxOffset * dir;
+				projectile.position.X += player.width / 2 * dir;
+				projectile.spriteDirection = dir;
+				projectile.rotation = projectile.ai[0];
 			//int dust = Dust.NewDust(projectile.position, projectile.width, projectile.height, DustID.Fire);  //this is the dust that this projectile will spawn
 			//Main.dust[dust].velocity /= 1f;
 		}
@@ -59,7 +62,7 @@ namespace Spellblade.Projectiles
 		{
 			p = player;
 			dir = p.direction;
-			projectile.ai[0] = dir == -1 ? MathHelper.ToRadians(-60) : MathHelper.ToRadians(-120);
+			projectile.ai[0] = dir == -1 ? MathHelper.ToRadians(0) : MathHelper.ToRadians(180); // MathHelper.ToRadians(-60) : MathHelper.ToRadians(-120);
 			projectile.timeLeft = lifetime + 15;
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)

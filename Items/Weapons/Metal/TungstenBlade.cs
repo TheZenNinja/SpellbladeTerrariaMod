@@ -1,14 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
-using Spellblade.Projectiles;
+using SpellbladeMod.Projectiles;
 using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons.Metal
+namespace SpellbladeMod.Items.Weapons.Metal
 {
-    class TungstenBlade : SpellswordBase
+    class TungstenBlade : SpellbladeBase
     {
         protected override int value => Item.sellPrice(silver: 1);
         protected override int rarity => ItemRarityID.Green;
@@ -38,8 +38,6 @@ namespace Spellblade.Items.Weapons.Metal
         }
         public override void OnRightClick(Player player)
         {
-            if (player.statMana >= player.GetManaCost(item))
-            {
                 Item.staff[item.type] = false;
                 item.useStyle = ItemUseStyleID.SwingThrow;
                 item.reuseDelay = 0;
@@ -55,10 +53,9 @@ namespace Spellblade.Items.Weapons.Metal
                 item.damage = projectileDamage;
                 item.knockBack = projectileKockback;
 
-                int id = Projectile.NewProjectile(player.position, Vector2.Zero, mod.ProjectileType("MegaSword"), projectileDamage, projectileKockback, Main.myPlayer);
+                int id = Projectile.NewProjectile(player.position, Vector2.Zero, ModContent.ProjectileType<MegaSword>(), projectileDamage, projectileKockback, Main.myPlayer);
                 MegaSword proj = Main.projectile[id].modProjectile as MegaSword;
                 proj.SetData(player, 30);
-            }
         }
 
         public override void AddRecipes()

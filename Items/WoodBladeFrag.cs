@@ -4,7 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items
+namespace SpellbladeMod.Items
 {
 	public class WoodBladeFrag : ModItem
 	{

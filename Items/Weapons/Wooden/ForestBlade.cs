@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using Spellblade.Projectiles;
+using SpellbladeMod.Projectiles;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons.Wooden
+namespace SpellbladeMod.Items.Weapons.Wooden
 {
-    public class ForestBlade : SpellswordBase
+    public class ForestBlade : SpellbladeBase
     {
         protected override int value => Item.buyPrice(copper: 50);
 		protected override int rarity => ItemRarityID.White;
@@ -22,7 +22,7 @@ namespace Spellblade.Items.Weapons.Wooden
         protected override int manaCost => 2;
         public override bool hasWeaponArt => true;
         protected override LegacySoundStyle weaponArtSound => new LegacySoundStyle(2, 117);
-        public override int arcaneCost => 0;// 2;
+        public override int arcaneCost => 2;
         protected override int castUseTime => 26;
         protected override LegacySoundStyle castSound => new LegacySoundStyle(2,8);
         protected override int projectileID => ProjectileID.TerraBeam;
@@ -83,7 +83,7 @@ namespace Spellblade.Items.Weapons.Wooden
 
                 Vector2 velDir = Vector2.Normalize(mousePosition - pos);
 
-                int id = Projectile.NewProjectile(pos, velDir * 10, mod.ProjectileType("MagicSwordProjectile"), 10, 2, Main.myPlayer);
+                int id = Projectile.NewProjectile(pos, velDir * 10, ModContent.ProjectileType<MagicSwordProjectile>(), 10, 2, Main.myPlayer);
 
                 MagicSwordProjectile proj = Main.projectile[id].modProjectile as MagicSwordProjectile;
                 proj.SetDelay(i * 10);

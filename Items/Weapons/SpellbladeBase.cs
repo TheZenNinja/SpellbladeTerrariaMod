@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework;
-using Spellblade.Projectiles;
+using SpellbladeMod.Projectiles;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons
+namespace SpellbladeMod.Items.Weapons
 {
-    public abstract class SpellswordBase : ModItem
+	public enum ModMessageType : byte
+	{
+		SyncPlayer,
+		UpdateAltFunc,
+		WeaponArt
+	}
+	public abstract class SpellbladeBase : ModItem
 	{
 		public override bool CloneNewInstances => true;
 
@@ -36,7 +43,9 @@ namespace Spellblade.Items.Weapons
 		#region casting attribues
 		protected abstract int manaCost { get; }
 		protected abstract int castUseTime { get; }
+		protected virtual int castUseAnimationTime { get; } = -1;
 		protected virtual int castReuseDelay { get; } = -1;
+		protected virtual int castUseStyle { get; } = ItemUseStyleID.HoldingOut;
 		protected virtual Terraria.Audio.LegacySoundStyle castSound { get; } = SoundID.Item9;
 		protected abstract int projectileID { get; }
 		protected abstract int projectileDamage { get; }
@@ -53,9 +62,9 @@ namespace Spellblade.Items.Weapons
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
-			TooltipLine line = new TooltipLine(mod, "Face", Spellblade.classTitleText)
+			TooltipLine line = new TooltipLine(mod, "Face", SpellbladeMod.classTitleText)
 			{
-				overrideColor = Spellblade.classTextColor
+				overrideColor = SpellbladeMod.classTextColor
 			};
 			tooltips.Insert(1, line);
 
@@ -68,6 +77,7 @@ namespace Spellblade.Items.Weapons
 			TooltipLine damageReplacement = new TooltipLine(mod, "Damage", $"{swingDmg} ({projDmg}) Magic Damage");
 			int dmgIndex = tooltips.FindIndex(t => t.Name == "Damage");
 			tooltips[dmgIndex] = damageReplacement;
+			TooltipLine manaReplacement = new TooltipLine(mod, "PrefixUseMana", $"{swingDmg} ({projDmg}) Magic Damage");
 
 
 			TooltipLine manaRestore = new TooltipLine(mod, "Tooltip0", $"Restores {onHitManaRegen} Mana on Melee Hit");
@@ -90,6 +100,7 @@ namespace Spellblade.Items.Weapons
 			item.useAnimation = swingUseTime;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.autoReuse = autoSwing;
+			Item.staff[item.type] = true;
 
 			item.value = value;
 			item.rare = rarity;
@@ -101,24 +112,39 @@ namespace Spellblade.Items.Weapons
 		public override bool AltFunctionUse(Player player) => true;
 		public override bool CanUseItem(Player player)
 		{
-			bool canNormallyUseItem = base.CanUseItem(player);
-			if (!canNormallyUseItem)
-				return false;
-			if (player.GetManaCost(item) > player.statMana)
-				return false;
-			if (player.altFunctionUse == 2) //right click
+			SpellbladePlayer sp = player.GetModPlayer<SpellbladePlayer>();
+			if (Main.myPlayer == player.whoAmI)
 			{
-				OnRightClick(player);
+				if (sp.CanUseItemAlt(player))
+				{
+					if (player.GetManaCost(item) > player.statMana)
+						return false;
+					OnRightClick(player);
+				}
+				else
+				{
+					OnLeftClick(player);
+				}
+				//sp.SendClientChanges(sp);
 			}
-			else //left click
+			else
 			{
-				OnLeftClick(player);	
+				if (sp.altWeaponFunc)
+				{
+					if (player.GetManaCost(item) > player.statMana)
+						return false;
+					OnRightClick(player);
+				}
+				else
+				{
+					OnLeftClick(player);
+				}
 			}
-			return true;
+			return base.CanUseItem(player);
 		}
 		public virtual void OnLeftClick(Player player)
 		{
-			Item.staff[item.type] = false;
+			//Item.staff[item.type] = false;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.useTime = swingUseTime;
 			item.useAnimation = swingUseTime;
@@ -127,21 +153,23 @@ namespace Spellblade.Items.Weapons
 			item.reuseDelay = 0;
 			item.noMelee = false;
 			item.knockBack = swingKnockback;
-			//to prevent mana use when swinging
-			player.manaCost = 0;
-			player.manaRegenDelayBonus = 0;
+			item.mana = 0;
 
 			item.shoot = ProjectileID.None;
 			item.useTurn = true;
 			item.autoReuse = autoSwing;
 		}
-		public virtual void OnRightClick(Player player)
+        public virtual void OnRightClick(Player player)
 		{
-			Item.staff[item.type] = true;
-			item.useStyle = ItemUseStyleID.HoldingOut;
+			//Item.staff[item.type] = true;
+			item.useStyle = ItemUseStyleID.HoldingOut; //castUseStyle;
 			item.useTime = castUseTime;
+			if (castUseAnimationTime != -1)
+				item.useAnimation = castUseAnimationTime;
+			else
+				item.useAnimation = castUseTime;
+
 			item.UseSound = castSound;
-			item.useAnimation = castUseTime;
 
 			if (castReuseDelay == -1)
 				item.reuseDelay = castUseTime;
@@ -154,12 +182,22 @@ namespace Spellblade.Items.Weapons
 			item.useTurn = false;
 			item.autoReuse = autoCast;
 		}
+		public override void NetSend(BinaryWriter writer)
+		{
+			writer.Write(item.useStyle);
+		}
+		public override void NetRecieve(BinaryReader reader)
+		{
+			item.useStyle = reader.ReadInt32();
+		}
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
 		{
 			if (player.altFunctionUse != 2)
+			{
 				player.statMana += (int)Math.Round((float)damage / swingDamage * onHitManaRegen);
+			}
+			player.GetModPlayer<SpellbladePlayer>().TryToGainArcane();
 		}
-
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
 		{
 			// Fix the speedX and Y to point them horizontally.
@@ -177,7 +215,15 @@ namespace Spellblade.Items.Weapons
 			return true;
 		}
 
-		public virtual void WeaponArt(Player player)
+        public void SetUseState(Player player, bool altFunctionUse)
+        {
+			if (altFunctionUse)
+				OnRightClick(player);
+			else 
+				OnLeftClick(player);
+        }
+
+        public virtual void WeaponArt(Player player)
 		{
 			if (!hasWeaponArt)
 				return;

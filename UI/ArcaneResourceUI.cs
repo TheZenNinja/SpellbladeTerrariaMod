@@ -4,9 +4,9 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
 using Terraria.ModLoader;
-using Spellblade.Items.Weapons;
+using SpellbladeMod.Items.Weapons;
 
-namespace Spellblade.UI
+namespace SpellbladeMod.UI
 {
     internal class ArcaneResourceUI : UIState
 	{
@@ -28,7 +28,7 @@ namespace Spellblade.UI
 			area.Width.Set(182, 0f); // We will be placing the following 2 UIElements within this 182x60 area.
 			area.Height.Set(60, 0f);
 
-			barFrame = new UIImage(ModContent.GetTexture("Spellblade/UI/ExampleResourceFrame"));
+			barFrame = new UIImage(ModContent.GetTexture("SpellbladeMod/UI/ExampleResourceFrame"));
 			barFrame.Left.Set(22, 0f);
 			barFrame.Top.Set(0, 0f);
 			barFrame.Width.Set(138, 0f);
@@ -51,7 +51,7 @@ namespace Spellblade.UI
 		public override void Draw(SpriteBatch spriteBatch)
 		{
 			// This prevents drawing unless we are using an ExampleDamageItem
-			if (!(Main.LocalPlayer.HeldItem.modItem is SpellswordBase) || !(Main.LocalPlayer.HeldItem.modItem as SpellswordBase).hasWeaponArt)
+			if (!(Main.LocalPlayer.HeldItem.modItem is SpellbladeBase) || !(Main.LocalPlayer.HeldItem.modItem as SpellbladeBase).hasWeaponArt)
 				return;
 
 			base.Draw(spriteBatch);
@@ -61,7 +61,7 @@ namespace Spellblade.UI
 		{
 			base.DrawSelf(spriteBatch);
 
-			var modPlayer = Main.LocalPlayer.GetModPlayer<SpellswordPlayer>();
+			var modPlayer = Main.LocalPlayer.GetModPlayer<SpellbladePlayer>();
 			// Calculate quotient
 			float quotient = (float)modPlayer.arcanePowerCurrent / modPlayer.arcanePowerMax2; // Creating a quotient that represents the difference of your currentResource vs your maximumResource, resulting in a float of 0-1f.
 			quotient = Utils.Clamp(quotient, 0f, 1f); // Clamping it to 0-1f so it doesn't go over that.
@@ -86,10 +86,10 @@ namespace Spellblade.UI
 		}
 		public override void Update(GameTime gameTime)
 		{
-			if (!(Main.LocalPlayer.HeldItem.modItem is SpellswordBase))
+			if (!(Main.LocalPlayer.HeldItem.modItem is SpellbladeBase))
 				return;
 
-			var modPlayer = Main.LocalPlayer.GetModPlayer<SpellswordPlayer>();
+			var modPlayer = Main.LocalPlayer.GetModPlayer<SpellbladePlayer>();
 			// Setting the text per tick to update and show our resource values.
 			text.SetText($"Arcane Power: {modPlayer.arcanePowerCurrent} / {modPlayer.arcanePowerMax2}");
 			base.Update(gameTime);

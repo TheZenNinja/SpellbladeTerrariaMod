@@ -1,19 +1,22 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using SpellbladeMod.Items.Weapons;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.GameInput;
+using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons
+namespace SpellbladeMod
 {
-    public class SpellswordPlayer : ModPlayer
+	public class SpellbladePlayer : ModPlayer
     {
-		public static SpellswordPlayer ModPlayer(Player player)
+		public static SpellbladePlayer ModPlayer(Player player)
 		{
-			return player.GetModPlayer<SpellswordPlayer>();
+			return player.GetModPlayer<SpellbladePlayer>();
 		}
 
 		// Here we include a custom resource, similar to mana or health.
@@ -27,6 +30,10 @@ namespace Spellblade.Items.Weapons
 		public bool canGainArcane;
 		public float arcaneGainCooldownMulti = 1;
 		internal int arcaneGainCooldownTimer = 0;
+
+		public bool altWeaponFunc = false;
+
+
 		//public static readonly Color HealExampleResource = new Color(187, 91, 201); // We can use this for CombatText, if you create an item that replenishes exampleResourceCurrent.
 
 		/*
@@ -80,11 +87,59 @@ namespace Spellblade.Items.Weapons
 
 			arcanePowerCurrent = Utils.Clamp(arcanePowerCurrent, 0, arcanePowerMax2);
 		}
+		public override void clientClone(ModPlayer clientClone)
+		{
+			SpellbladePlayer clone = clientClone as SpellbladePlayer;
+			// Here we would make a backup clone of values that are only correct on the local players Player instance.
+			// Some examples would be RPG stats from a GUI, Hotkey states, and Extra Item Slots
+			clone.arcanePowerCurrent = arcanePowerCurrent;
+			clone.arcanePowerMax = arcanePowerMax;
+			clone.arcanePowerMax2 = arcanePowerMax2;
+			clone.altWeaponFunc = altWeaponFunc;
+		}
 
-		/// <summary>
-		/// Tests if the player can gain arcane power and adds it if they can
-		/// </summary>
-		public void TryToGainArcane()
+		//thank you weaponout mod dev, you saved my life here
+		public bool CanUseItemAlt(Player player)
+		{
+			SpellbladePlayer p = player.GetModPlayer<SpellbladePlayer>();
+
+			bool wasChange = false;
+			if (p.altWeaponFunc != (player.altFunctionUse == 2))
+				wasChange = true;
+				p.altWeaponFunc = player.altFunctionUse == 2;
+			if (wasChange)
+			{
+				if (Main.myPlayer == player.whoAmI)
+				{
+					ModPacket packet = mod.GetPacket();
+					packet.Write((byte)ModMessageType.AltFuncUpdate);
+					packet.Write((byte)player.whoAmI);
+					packet.Write((player.altFunctionUse == 2));
+					packet.Send();
+				}
+			}
+			//SendClientChanges(p);
+
+			return player.altFunctionUse == 2;
+		}
+		
+        public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
+		{
+			ModPacket packet = mod.GetPacket();
+			packet.Write((byte)ModMessageType.SyncPlayer);
+			packet.Write((byte)player.whoAmI);
+			packet.Write(arcanePowerCurrent); // While we sync nonStopParty in SendClientChanges, we still need to send it here as well so newly joining players will receive the correct value.
+			packet.Write(arcanePowerMax);
+			packet.Write(arcanePowerMax2);
+			packet.Write(altWeaponFunc);
+			packet.Send(toWho, fromWho);
+		}
+
+
+			/// <summary>
+			/// Tests if the player can gain arcane power and adds it if they can
+			/// </summary>
+			public void TryToGainArcane()
 		{
 			if (canGainArcane)
 			{
@@ -93,14 +148,14 @@ namespace Spellblade.Items.Weapons
 				arcaneGainCooldownTimer = 0;
 			}
 		}
-
-		public override void ProcessTriggers(TriggersSet triggersSet)
+        
+        public override void ProcessTriggers(TriggersSet triggersSet)
 		{
-			if (Spellblade.WeaponArtKey.JustPressed)
+			if (SpellbladeMod.WeaponArtKey.JustPressed)
 			{
-				if (!(Main.LocalPlayer.HeldItem.modItem is SpellswordBase))
+				if (!(Main.LocalPlayer.HeldItem.modItem is SpellbladeBase))
 					return;
-				SpellswordBase s = player.HeldItem.modItem as SpellswordBase;
+				SpellbladeBase s = player.HeldItem.modItem as SpellbladeBase;
 				if (!s.hasWeaponArt)
 					return;
 				if (ModPlayer(player).arcanePowerCurrent < s.arcaneCost)
@@ -110,11 +165,5 @@ namespace Spellblade.Items.Weapons
 				s.WeaponArt(player);
 			}
 		}
-
-		public override void OnHitAnything(float x, float y, Entity victim)
-        {
-			TryToGainArcane();
-			base.OnHitAnything(x, y, victim);
-        }
     }
 }

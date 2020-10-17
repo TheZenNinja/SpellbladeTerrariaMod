@@ -5,7 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Spellblade.Items.Weapons
+namespace SpellbladeMod.Items.Weapons
 {
 	/*
 	public class TestSword : SpellswordBase
