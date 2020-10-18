@@ -10,13 +10,13 @@ namespace SpellbladeMod.Items.Weapons.Wooden
 {
     public class PalmwoodBlade : SpellbladeBase
     {
-        protected override int value => Item.buyPrice(copper: 50);
+        protected override int value => Item.sellPrice(copper: 50);
 		protected override int rarity => ItemRarityID.White;
 
         protected override int swingDamage => 8;
         protected override float swingKnockback => 4;
         protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 4;
+        protected override int onHitManaRegen => 10;
 
         protected override int manaCost => 2;
         protected override int castUseTime => 10;
@@ -35,16 +35,6 @@ namespace SpellbladeMod.Items.Weapons.Wooden
 		public override void SetDefaults()
 		{
 			SetBasicCustomDefaults();
-		}
-
-		public override void AddRecipes()
-		{
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.PalmWood, 6);
-			recipe.AddIngredient(ItemID.FallenStar, 1);
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
 		}
 	}
 }

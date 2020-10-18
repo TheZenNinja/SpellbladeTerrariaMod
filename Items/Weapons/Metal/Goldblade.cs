@@ -11,42 +11,48 @@ namespace SpellbladeMod.Items.Weapons.Metal
 {
     public class GoldBlade : SpellbladeBase
     {
-        protected override int value => Item.sellPrice(silver: 30);
-        protected override int rarity => ItemRarityID.Green;
+        protected override int value => Item.sellPrice(silver: 50);
+        protected override int rarity => ItemRarityID.Blue;
 
-        protected override int swingDamage => 14;
+        protected override int swingDamage => 12;
         protected override float swingKnockback => 4.5f;
         protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 8;
+        protected override int onHitManaRegen => 20;
 
-        protected override int manaCost => 3;
-        protected override int castUseTime => 2;
-        protected override LegacySoundStyle castSound => new LegacySoundStyle(2,9);
-        protected override int projectileID => ModContent.ProjectileType<CustomSkyFracture>();
-        protected override int projectileDamage => 5;
-        protected override float projectileKockback => 1;
-        protected override int projectileSpeed => 14;
+        protected override int manaCost => 40;
+        protected override int castUseTime => 45;
+        protected override int projectileID => 0;
+        protected override int projectileDamage => 20;
+        protected override float projectileKockback => 6;
+        protected override int projectileSpeed => 4;
+        protected override bool autoCast => false;
 
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Gold Spellblade");
-            Tooltip.SetDefault("Shoots a barrage of swords at the cursor with <right>.");
+            Tooltip.SetDefault("Projects a large sword with <right>.");
         }
         public override void SetDefaults()
         {
             SetBasicCustomDefaults();
         }
-        public override void AddRecipes()
+        public override void OnRightClick(Player player)
         {
-            ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ItemID.GoldBar, 8);
-            recipe.AddIngredient(ItemID.Ruby, 2);
-            recipe.AddIngredient(ItemID.FallenStar, 1);
-            recipe.AddTile(TileID.Anvils);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            base.OnRightClick(player);
+            Item.staff[item.type] = false;
+            item.useStyle = ItemUseStyleID.SwingThrow;
+            item.reuseDelay = 0;
+            item.noMelee = false;
+            item.shoot = ProjectileID.None;
+
+            if (player.whoAmI == Main.myPlayer)
+            {
+                int id = Projectile.NewProjectile(player.position, Vector2.Zero, ModContent.ProjectileType<MegaSword>(), projectileDamage, projectileKockback, Main.myPlayer);
+                MegaSword proj = Main.projectile[id].modProjectile as MegaSword;
+                proj.SetData(player, 30);
+            }
         }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
+        /*public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
         {
             int radius = 16 * 16;
             Vector2 mousePosition = Main.MouseWorld;
@@ -60,6 +66,6 @@ namespace SpellbladeMod.Items.Weapons.Metal
             int id = Projectile.NewProjectile(pos, velDir * projectileSpeed, projectileID, projectileDamage, projectileKockback, Main.myPlayer);
             Main.projectile[id].timeLeft = 30;
             return false;
-        }
+        }*/
     }
 }

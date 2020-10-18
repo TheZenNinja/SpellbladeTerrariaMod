@@ -14,6 +14,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 using SpellbladeMod.UI;
+using SpellbladeMod.Items.Weapons.Metal;
 
 namespace SpellbladeMod
 {
@@ -25,34 +26,34 @@ namespace SpellbladeMod
 	}
 	public class SpellbladeMod : Mod
 	{
-        public static readonly Color classTextColor = new Color(0, 100, 255);
-        public static readonly string classTitleText = "-Spellblade Class-";
+		public static readonly Color classTextColor = new Color(0, 100, 255);
+		public static readonly string classTitleText = "-Spellblade Class-";
 
-        public static ModHotKey WeaponArtKey;
+		public static ModHotKey WeaponArtKey;
 
-        public static SpellbladeMod instance;
+		public static SpellbladeMod instance;
 
-        private UserInterface _arcaneBarUserInterface;
+		private UserInterface _arcaneBarUserInterface;
 
-        internal ArcaneResourceUI ArcaneBar;
-        public override void Load()
-        {
-            instance = this;
+		internal ArcaneResourceUI ArcaneBar;
+		public override void Load()
+		{
+			instance = this;
 
-            WeaponArtKey = RegisterHotKey("Weapon Art", "V");
+			WeaponArtKey = RegisterHotKey("Weapon Art", "V");
 
-            if (!Main.dedServ)
-            {
-                ArcaneBar = new ArcaneResourceUI();
-                _arcaneBarUserInterface = new UserInterface();
-                _arcaneBarUserInterface.SetState(ArcaneBar);
-            }
-        }
-        public override void Unload()
-        {
-            instance = null;
-            WeaponArtKey = null;
-        }
+			if (!Main.dedServ)
+			{
+				ArcaneBar = new ArcaneResourceUI();
+				_arcaneBarUserInterface = new UserInterface();
+				_arcaneBarUserInterface.SetState(ArcaneBar);
+			}
+		}
+		public override void Unload()
+		{
+			instance = null;
+			WeaponArtKey = null;
+		}
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI)
 		{
@@ -102,9 +103,9 @@ namespace SpellbladeMod
 			}
 		}
 		public override void UpdateUI(GameTime gameTime)
-        {
-            _arcaneBarUserInterface?.Update(gameTime);
-        }
+		{
+			_arcaneBarUserInterface?.Update(gameTime);
+		}
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
 		{
 			int resourceBarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Resource Bars"));
@@ -112,13 +113,21 @@ namespace SpellbladeMod
 			{
 				layers.Insert(resourceBarIndex, new LegacyGameInterfaceLayer(
 					"Spellblade: Arcane Resource Bar",
-					delegate {
+					delegate
+					{
 						_arcaneBarUserInterface.Draw(Main.spriteBatch, new GameTime());
 						return true;
 					},
 					InterfaceScaleType.UI)
 				);
 			}
+		}
+		public override void AddRecipes()
+		{
+			RecipeManager.AddConversionRecipies(this);
+			RecipeManager.AddIngredientRecipies(this);
+			RecipeManager.AddWoodenRecipies(this);
+			RecipeManager.AddMetalRecipies(this);
 		}
 	}
 }

@@ -33,7 +33,7 @@ namespace SpellbladeMod.Items.Weapons.Wooden
         public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Heart of The Forest");
-			Tooltip.SetDefault("Shoots ??? with <right>.");
+			Tooltip.SetDefault("Not implemented, dont use");
 		}
 
 		public override void SetDefaults()
@@ -46,18 +46,6 @@ namespace SpellbladeMod.Items.Weapons.Wooden
             if (player.altFunctionUse == 2)
                     target.AddBuff(BuffID.CursedInferno, Main.rand.Next(20, 40));
         }
-
-        public override void AddRecipes()
-		{
-			/*ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.Wood, 6);
-			recipe.AddIngredient(ItemID.FallenStar, 1);
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();*/
-		}
-
-
 
         public override void WeaponArt(Player player)
         {

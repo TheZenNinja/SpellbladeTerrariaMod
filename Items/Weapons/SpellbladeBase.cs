@@ -73,15 +73,17 @@ namespace SpellbladeMod.Items.Weapons
 			int swingDmg = p.GetWeaponDamage(item);
 			item.damage = projectileDamage;
 			int projDmg = p.GetWeaponDamage(item);
+			item.mana = manaCost;
+			int cost = p.GetManaCost(item);
 
 			TooltipLine damageReplacement = new TooltipLine(mod, "Damage", $"{swingDmg} ({projDmg}) Magic Damage");
 			int dmgIndex = tooltips.FindIndex(t => t.Name == "Damage");
-			tooltips[dmgIndex] = damageReplacement;
-			TooltipLine manaReplacement = new TooltipLine(mod, "PrefixUseMana", $"{swingDmg} ({projDmg}) Magic Damage");
 
+			if (tooltips.Find(t => t.Name == "PrefixUseMana") != null)
+			tooltips.RemoveAll(t => t.Name == "PrefixUseMana");
 
-			TooltipLine manaRestore = new TooltipLine(mod, "Tooltip0", $"Restores {onHitManaRegen} Mana on Melee Hit");
-			tooltips.Add(manaRestore);
+			TooltipLine manaData = new TooltipLine(mod, "Tooltip0", $"Uses {cost} mana\nRestores {onHitManaRegen} Mana on Melee Hit");
+			tooltips.Add(manaData);
 		}
 
 		protected void SetBasicCustomDefaults()
@@ -89,7 +91,7 @@ namespace SpellbladeMod.Items.Weapons
 			item.damage = swingDamage;
 			item.magic = true;
 			item.knockBack = swingKnockback;
-			item.mana = manaCost;
+			item.mana = 0;
 			item.crit = critChance;
 
 			item.scale = scale;
@@ -121,13 +123,9 @@ namespace SpellbladeMod.Items.Weapons
 
 			
 			if (sp.altWeaponFunc)
-			{
 				OnRightClick(player);
-			}
 			else
-			{
 				OnLeftClick(player);
-			}
 
 			//Main.NewText($"-Spellblade- Player: {Main.player[player.whoAmI].name} AltFunc = {sp.altWeaponFunc}");
 
@@ -153,7 +151,7 @@ namespace SpellbladeMod.Items.Weapons
         public virtual void OnRightClick(Player player)
 		{
 			//Item.staff[item.type] = true;
-			item.useStyle = ItemUseStyleID.HoldingOut; //castUseStyle;
+			item.useStyle = castUseStyle;
 			item.useTime = castUseTime;
 			if (castUseAnimationTime != -1)
 				item.useAnimation = castUseAnimationTime;

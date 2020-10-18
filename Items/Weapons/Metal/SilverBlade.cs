@@ -11,23 +11,21 @@ namespace SpellbladeMod.Items.Weapons.Metal
 {
     public class SilverBlade : SpellbladeBase
     {
-        protected override int value => Item.sellPrice(silver: 30);
-        protected override int rarity => ItemRarityID.Green;
+        protected override int value => Item.sellPrice(silver: 25);
+        protected override int rarity => ItemRarityID.Blue;
 
-        protected override int swingDamage => 14;
-        protected override float swingKnockback => 4.5f;
-        protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 8;
+        protected override int swingDamage => 10;
+        protected override float swingKnockback => 4f;
+        protected override int swingUseTime => 22;
+        protected override int onHitManaRegen => 20;
 
         protected override int manaCost => 12;
-        protected override int castUseTime => 10;
-        protected override int castUseAnimationTime => 20;
-        protected override int castReuseDelay => 32;
+        protected override int castUseTime => 24;
         protected override LegacySoundStyle castSound => new LegacySoundStyle(2, 9);
-        protected override int projectileID => ModContent.ProjectileType<CustomSkyFracture>();
+        protected override int projectileID => ProjectileID.SapphireBolt;
         protected override int projectileDamage => 20;
         protected override float projectileKockback => 3;
-        protected override int projectileSpeed => 16;
+        protected override int projectileSpeed => 8;
 
         public override void SetStaticDefaults()
         {
@@ -37,28 +35,6 @@ namespace SpellbladeMod.Items.Weapons.Metal
         public override void SetDefaults()
         {
             SetBasicCustomDefaults();
-        }
-        public override void AddRecipes()
-        {
-            ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ItemID.SilverBar, 8);
-            recipe.AddIngredient(ItemID.Sapphire, 2);
-            recipe.AddIngredient(ItemID.FallenStar, 1);
-            recipe.AddTile(TileID.Anvils);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
-        }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
-        {
-            Vector2 mousePosition = Main.MouseWorld;
-
-            Vector2 randPos = new Vector2(Main.rand.Next(-64, 64), Main.rand.Next(-64, 0));
-            Vector2 pos = randPos + player.position;
-
-            Vector2 velDir = Vector2.Normalize(mousePosition - pos);
-
-            int id = Projectile.NewProjectile(pos, velDir * projectileSpeed, projectileID, projectileDamage, projectileKockback, Main.myPlayer);
-            return false;
         }
     }
 }

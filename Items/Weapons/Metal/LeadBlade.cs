@@ -12,17 +12,18 @@ namespace SpellbladeMod.Items.Weapons.Metal
 {
     class LeadBlade : SpellbladeBase
     {
-        protected override int value => Item.buyPrice(silver: 6);
-        protected override int rarity => ItemRarityID.Green;
+        protected override int value => Item.buyPrice(silver: 5);
+        protected override int rarity => ItemRarityID.Blue;
         protected override int swingDamage => 8;
         protected override float swingKnockback => 5.5f;
         protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 6;
+        protected override int onHitManaRegen => 20;
+
         protected override int manaCost => 10;
-        protected override int castUseTime => 22;
+        protected override int castUseTime => 30;
         protected override int projectileID => ProjectileID.EnchantedBeam;
-        protected override int projectileDamage => 26;
-        protected override float projectileKockback => 4f;
+        protected override int projectileDamage => 14;
+        protected override float projectileKockback => 2f;
         protected override int projectileSpeed => 10;
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -49,15 +50,6 @@ namespace SpellbladeMod.Items.Weapons.Metal
         public override void SetDefaults()
         {
             SetBasicCustomDefaults();
-        }
-        public override void AddRecipes()
-        {
-            ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ItemID.LeadBar, 8);
-            recipe.AddIngredient(ItemID.FallenStar, 1);
-            recipe.AddTile(TileID.Anvils);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
         }
     }
 }
