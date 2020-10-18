@@ -113,36 +113,27 @@ namespace SpellbladeMod.Items.Weapons
 		public override bool CanUseItem(Player player)
 		{
 			SpellbladePlayer sp = player.GetModPlayer<SpellbladePlayer>();
-			if (Main.myPlayer == player.whoAmI)
 			{
-				if (sp.CanUseItemAlt(player))
-				{
+				if (SpellbladePlayer.CanUseItemAlt(player, Main.myPlayer == player.whoAmI))
 					if (player.GetManaCost(item) > player.statMana)
 						return false;
-					OnRightClick(player);
-				}
-				else
-				{
-					OnLeftClick(player);
-				}
-				//sp.SendClientChanges(sp);
+			}
+
+			
+			if (sp.altWeaponFunc)
+			{
+				OnRightClick(player);
 			}
 			else
 			{
-				if (sp.altWeaponFunc)
-				{
-					if (player.GetManaCost(item) > player.statMana)
-						return false;
-					OnRightClick(player);
-				}
-				else
-				{
-					OnLeftClick(player);
-				}
+				OnLeftClick(player);
 			}
-			return base.CanUseItem(player);
+
+			//Main.NewText($"-Spellblade- Player: {Main.player[player.whoAmI].name} AltFunc = {sp.altWeaponFunc}");
+
+			return true;
 		}
-		public virtual void OnLeftClick(Player player)
+        public virtual void OnLeftClick(Player player)
 		{
 			//Item.staff[item.type] = false;
 			item.useStyle = ItemUseStyleID.SwingThrow;
@@ -182,14 +173,6 @@ namespace SpellbladeMod.Items.Weapons
 			item.useTurn = false;
 			item.autoReuse = autoCast;
 		}
-		public override void NetSend(BinaryWriter writer)
-		{
-			writer.Write(item.useStyle);
-		}
-		public override void NetRecieve(BinaryReader reader)
-		{
-			item.useStyle = reader.ReadInt32();
-		}
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
 		{
 			if (player.altFunctionUse != 2)
@@ -214,14 +197,6 @@ namespace SpellbladeMod.Items.Weapons
 			speedY = speed.Y;
 			return true;
 		}
-
-        public void SetUseState(Player player, bool altFunctionUse)
-        {
-			if (altFunctionUse)
-				OnRightClick(player);
-			else 
-				OnLeftClick(player);
-        }
 
         public virtual void WeaponArt(Player player)
 		{

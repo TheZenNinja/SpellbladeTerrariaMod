@@ -20,7 +20,8 @@ namespace SpellbladeMod
 	public enum ModMessageType : byte
 	{
 		SyncPlayer,
-		AltFuncUpdate
+		AltFuncUpdate,
+		ForceAltUse
 	}
 	public class SpellbladeMod : Mod
 	{
@@ -36,7 +37,6 @@ namespace SpellbladeMod
         internal ArcaneResourceUI ArcaneBar;
         public override void Load()
         {
-            //Logger.InfoFormat("{0} example logging", Name);
             instance = this;
 
             WeaponArtKey = RegisterHotKey("Weapon Art", "V");
@@ -59,7 +59,6 @@ namespace SpellbladeMod
 			ModMessageType msgType = (ModMessageType)reader.ReadByte();
 			switch (msgType)
 			{
-				// This message syncs ExamplePlayer.exampleLifeFruits
 				case ModMessageType.SyncPlayer:
 					byte playernumber = reader.ReadByte();
 					SpellbladePlayer player = Main.player[playernumber].GetModPlayer<SpellbladePlayer>();
@@ -75,15 +74,25 @@ namespace SpellbladeMod
 				case ModMessageType.AltFuncUpdate:
 					playernumber = reader.ReadByte();
 					player = Main.player[playernumber].GetModPlayer<SpellbladePlayer>();
-					bool alt = reader.ReadBoolean();
-					player.altWeaponFunc = alt;
-					Main.NewText($"Player: {Main.player[playernumber].name} AltFunc = {alt}");
+					player.altWeaponFunc = reader.ReadBoolean();
 					if (Main.netMode == NetmodeID.Server)
 					{
 						var packet = GetPacket();
 						packet.Write((byte)ModMessageType.AltFuncUpdate);
 						packet.Write(playernumber);
 						packet.Write(player.altWeaponFunc);
+						packet.Send(-1, playernumber);
+					}
+					break;
+				case ModMessageType.ForceAltUse:
+					playernumber = reader.ReadByte();
+					player = Main.player[playernumber].GetModPlayer<SpellbladePlayer>();
+					player.ForceAltUse();
+					if (Main.netMode == NetmodeID.Server)
+					{
+						var packet = GetPacket();
+						packet.Write((byte)ModMessageType.ForceAltUse);
+						packet.Write(playernumber);
 						packet.Send(-1, playernumber);
 					}
 					break;

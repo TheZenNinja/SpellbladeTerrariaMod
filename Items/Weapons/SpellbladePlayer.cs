@@ -98,27 +98,36 @@ namespace SpellbladeMod
 			clone.altWeaponFunc = altWeaponFunc;
 		}
 
+		public void ForceAltUse()
+		{
+			player.altFunctionUse = 2;
+			player.HeldItem.modItem.CanUseItem(player);
+		}
+
 		//thank you weaponout mod dev, you saved my life here
-		public bool CanUseItemAlt(Player player)
+		public static bool CanUseItemAlt(Player player, bool forcePush)
 		{
 			SpellbladePlayer p = player.GetModPlayer<SpellbladePlayer>();
 
-			bool wasChange = false;
-			if (p.altWeaponFunc != (player.altFunctionUse == 2))
-				wasChange = true;
-				p.altWeaponFunc = player.altFunctionUse == 2;
-			if (wasChange)
+			p.altWeaponFunc = player.altFunctionUse == 2;
+
+			if (Main.netMode != NetmodeID.SinglePlayer)
 			{
-				if (Main.myPlayer == player.whoAmI)
+				ModPacket packet = p.mod.GetPacket();
+				packet.Write((byte)ModMessageType.AltFuncUpdate);
+				packet.Write((byte)player.whoAmI);
+				packet.Write(p.altWeaponFunc);
+				packet.Send();
+
+				if (forcePush && p.altWeaponFunc)
 				{
-					ModPacket packet = mod.GetPacket();
-					packet.Write((byte)ModMessageType.AltFuncUpdate);
+					packet = p.mod.GetPacket();
+					packet.Write((byte)ModMessageType.ForceAltUse);
 					packet.Write((byte)player.whoAmI);
-					packet.Write((player.altFunctionUse == 2));
 					packet.Send();
 				}
 			}
-			//SendClientChanges(p);
+			//Main.NewText($"-PlayerMod- Player: {Main.player[player.whoAmI].name} AltFunc = {p.altWeaponFunc}");
 
 			return player.altFunctionUse == 2;
 		}
@@ -128,18 +137,29 @@ namespace SpellbladeMod
 			ModPacket packet = mod.GetPacket();
 			packet.Write((byte)ModMessageType.SyncPlayer);
 			packet.Write((byte)player.whoAmI);
-			packet.Write(arcanePowerCurrent); // While we sync nonStopParty in SendClientChanges, we still need to send it here as well so newly joining players will receive the correct value.
+			packet.Write(arcanePowerCurrent); 
 			packet.Write(arcanePowerMax);
 			packet.Write(arcanePowerMax2);
 			packet.Write(altWeaponFunc);
 			packet.Send(toWho, fromWho);
 		}
 
-
-			/// <summary>
-			/// Tests if the player can gain arcane power and adds it if they can
-			/// </summary>
-			public void TryToGainArcane()
+		/*public override void DrawEffects(PlayerDrawInfo drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
+		{
+			if (altWeaponFunc && drawInfo.shadow == 0f && Main.rand.NextBool(6)) // checking shadow == 0 helps avoid spawning extra dust because of extra shadow draws.
+			{
+				int dustIndex = Dust.NewDust(drawInfo.position + new Vector2(drawInfo.drawPlayer.width / 2 - 2, -30), 4, 4, 219, 0f, 0f, 100, default(Color), 1f);
+				Dust dust = Main.dust[dustIndex];
+				dust.velocity.X = Main.rand.NextFloat(-1f, 1f);
+				dust.velocity.Y = Main.rand.NextFloat(-3, -1.5f);
+				dust.scale = 1f + Main.rand.NextFloat(-.030f, .031f);
+				Main.playerDrawDust.Add(dustIndex);
+			}
+		}*/
+		/// <summary>
+		/// Tests if the player can gain arcane power and adds it if they can
+		/// </summary>
+		public void TryToGainArcane()
 		{
 			if (canGainArcane)
 			{
