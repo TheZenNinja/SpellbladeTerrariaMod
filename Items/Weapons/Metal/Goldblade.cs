@@ -17,7 +17,7 @@ namespace SpellbladeMod.Items.Weapons.Metal
         protected override int swingDamage => 12;
         protected override float swingKnockback => 4.5f;
         protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 20;
+        protected override int onHitManaRegen => ManaRegenT2;
 
         protected override int manaCost => 40;
         protected override int castUseTime => 45;

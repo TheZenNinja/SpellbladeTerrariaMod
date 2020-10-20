@@ -16,7 +16,7 @@ namespace SpellbladeMod.Items.Weapons.Wooden
         protected override int swingDamage => 8;
         protected override float swingKnockback => 4;
         protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 10;
+        protected override int onHitManaRegen => ManaRegenT1;
 
         protected override int manaCost => 2;
         protected override int castUseTime => 10;
@@ -24,7 +24,7 @@ namespace SpellbladeMod.Items.Weapons.Wooden
         protected override int projectileID => 22;
         protected override int projectileDamage => 6;
         protected override float projectileKockback => 2;
-        protected override int projectileSpeed => 10;
+        protected override int projectileSpeed => 12;
 
         public override void SetStaticDefaults()
 		{

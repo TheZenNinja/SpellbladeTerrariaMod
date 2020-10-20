@@ -16,12 +16,12 @@ namespace SpellbladeMod.Items.Weapons.Wooden
         protected override int swingDamage => 8;
         protected override float swingKnockback => 4;
         protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 10;
+        protected override int onHitManaRegen => ManaRegenT1;
 
         protected override int manaCost => 4;
         protected override int castUseTime => 16;
         protected override LegacySoundStyle castSound => new LegacySoundStyle(2,21);
-        protected override int projectileID => ProjectileID.WaterStream;
+        protected override int projectileID => ProjectileID.BloodRain;
         protected override int projectileDamage => 8;
         protected override float projectileKockback => 4;
         protected override int projectileSpeed => 10;

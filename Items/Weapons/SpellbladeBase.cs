@@ -20,6 +20,11 @@ namespace SpellbladeMod.Items.Weapons
 	}
 	public abstract class SpellbladeBase : ModItem
 	{
+		public static readonly int ManaRegenT1 = 8;
+		public static readonly int ManaRegenT2 = 16;
+		public static readonly int ManaRegenT3 = 24;
+
+
 		public override bool CloneNewInstances => true;
 
 		#region basic attribues
@@ -46,11 +51,12 @@ namespace SpellbladeMod.Items.Weapons
 		protected virtual int castUseAnimationTime { get; } = -1;
 		protected virtual int castReuseDelay { get; } = -1;
 		protected virtual int castUseStyle { get; } = ItemUseStyleID.HoldingOut;
-		protected virtual Terraria.Audio.LegacySoundStyle castSound { get; } = SoundID.Item9;
+		protected virtual Terraria.Audio.LegacySoundStyle castSound { get; } = SoundID.Item8;
 		protected abstract int projectileID { get; }
 		protected abstract int projectileDamage { get; }
 		protected abstract float projectileKockback { get; }
 		protected abstract int projectileSpeed { get; }
+		protected virtual int projectileSpread { get; } = 5;
 		protected virtual bool autoCast { get; } = true;
 		#endregion
 
@@ -73,19 +79,20 @@ namespace SpellbladeMod.Items.Weapons
 			int swingDmg = p.GetWeaponDamage(item);
 			item.damage = projectileDamage;
 			int projDmg = p.GetWeaponDamage(item);
-			item.mana = manaCost;
-			int cost = p.GetManaCost(item);
 
 			TooltipLine damageReplacement = new TooltipLine(mod, "Damage", $"{swingDmg} ({projDmg}) Magic Damage");
 			int dmgIndex = tooltips.FindIndex(t => t.Name == "Damage");
+			tooltips[dmgIndex] = damageReplacement;
+
 
 			if (tooltips.Find(t => t.Name == "PrefixUseMana") != null)
-			tooltips.RemoveAll(t => t.Name == "PrefixUseMana");
+				tooltips.RemoveAll(t => t.Name == "PrefixUseMana");
 
-			TooltipLine manaData = new TooltipLine(mod, "Tooltip0", $"Uses {cost} mana\nRestores {onHitManaRegen} Mana on Melee Hit");
-			tooltips.Add(manaData);
+			item.mana = manaCost;
+			int cost = p.GetManaCost(item);
+			TooltipLine manaData = new TooltipLine(mod, "PrefixUseMana", $"Uses {cost} mana\nRestores {onHitManaRegen} Mana on Melee Hit");
+			tooltips.Insert(6, manaData);
 		}
-
 		protected void SetBasicCustomDefaults()
 		{
 			item.damage = swingDamage;
@@ -110,7 +117,6 @@ namespace SpellbladeMod.Items.Weapons
 			item.shoot = projectileID;
 			item.shootSpeed = projectileSpeed;
 		}
-
 		public override bool AltFunctionUse(Player player) => true;
 		public override bool CanUseItem(Player player)
 		{
@@ -145,7 +151,7 @@ namespace SpellbladeMod.Items.Weapons
 			item.mana = 0;
 
 			item.shoot = ProjectileID.None;
-			item.useTurn = true;
+			//item.useTurn = true;
 			item.autoReuse = autoSwing;
 		}
         public virtual void OnRightClick(Player player)
@@ -153,6 +159,7 @@ namespace SpellbladeMod.Items.Weapons
 			//Item.staff[item.type] = true;
 			item.useStyle = castUseStyle;
 			item.useTime = castUseTime;
+			item.mana = manaCost;
 			if (castUseAnimationTime != -1)
 				item.useAnimation = castUseAnimationTime;
 			else
@@ -160,10 +167,10 @@ namespace SpellbladeMod.Items.Weapons
 
 			item.UseSound = castSound;
 
-			if (castReuseDelay == -1)
-				item.reuseDelay = castUseTime;
-			else
+			if (castReuseDelay != -1)
 				item.reuseDelay = castReuseDelay;
+			else
+				item.reuseDelay = castUseTime;
 
 			item.noMelee = true;
 			item.damage = projectileDamage;
@@ -188,14 +195,13 @@ namespace SpellbladeMod.Items.Weapons
 			// Add random Rotation
 			Vector2 speed = new Vector2(speedX, speedY);
 			speed = speed.RotatedBy(player.itemRotation);
-			speed = speed.RotatedByRandom(MathHelper.ToRadians(5));
+			speed = speed.RotatedByRandom(MathHelper.ToRadians(projectileSpread));
 
 			damage = projectileDamage;
 			speedX = speed.X;
 			speedY = speed.Y;
 			return true;
 		}
-
         public virtual void WeaponArt(Player player)
 		{
 			if (!hasWeaponArt)

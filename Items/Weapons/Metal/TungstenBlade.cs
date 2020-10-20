@@ -16,11 +16,11 @@ namespace SpellbladeMod.Items.Weapons.Metal
         protected override int swingDamage => 10;
         protected override float swingKnockback => 4.5f;
         protected override int swingUseTime => 24;
-        protected override int onHitManaRegen => 20;
+        protected override int onHitManaRegen => ManaRegenT2;
 
         protected override int manaCost => 40;
         protected override int castUseTime => 45;
-        protected override int projectileID => 0;
+        protected override int projectileID => ProjectileID.EmeraldBolt;
         protected override int projectileDamage => 20;
         protected override float projectileKockback => 6;
         protected override int projectileSpeed => 4;

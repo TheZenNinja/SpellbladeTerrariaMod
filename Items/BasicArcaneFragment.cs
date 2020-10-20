@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace SpellbladeMod.Items
 {
-	public class ArcaneFragment : ModItem
+	public class BasicArcaneFragment : ModItem
 	{
 		public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
@@ -16,7 +16,7 @@ namespace SpellbladeMod.Items
 			};
 			tooltips.Insert(1, line);
 
-			TooltipLine manaRestore = new TooltipLine(mod, "Tooltip0", "Faintly hums with arcane energy");
+			TooltipLine manaRestore = new TooltipLine(mod, "Tooltip0", "Faintly glows with arcane energy");
 			tooltips.Add(manaRestore);
 		}
 
@@ -26,7 +26,7 @@ namespace SpellbladeMod.Items
 			item.height = 20;
 			item.maxStack = 999;
 			item.value = Item.sellPrice(silver:10);
-			item.rare = ItemRarityID.Blue;
+			item.rare = ItemRarityID.Green;
 		}
 	}
 }

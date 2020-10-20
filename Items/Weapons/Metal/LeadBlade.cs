@@ -17,7 +17,7 @@ namespace SpellbladeMod.Items.Weapons.Metal
         protected override int swingDamage => 8;
         protected override float swingKnockback => 5.5f;
         protected override int swingUseTime => 20;
-        protected override int onHitManaRegen => 20;
+        protected override int onHitManaRegen => ManaRegenT2;
 
         protected override int manaCost => 10;
         protected override int castUseTime => 30;
@@ -29,11 +29,11 @@ namespace SpellbladeMod.Items.Weapons.Metal
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             base.ModifyTooltips(tooltips);
-            TooltipLine extra = new TooltipLine(mod, "Tooltip2", "Poisons enemies")
+            TooltipLine extra = new TooltipLine(mod, "Tooltip0", "Poisons enemies")
             {
                 overrideColor = Color.Lime
             };
-            tooltips.Add(extra);
+            tooltips.Insert(8, extra);
         }
         public override void SetStaticDefaults()
         {

@@ -16,7 +16,7 @@ namespace SpellbladeMod.Items.Weapons.Wooden
         protected override int swingDamage => 6;
         protected override float swingKnockback => 3;
         protected override int swingUseTime => 22;
-        protected override int onHitManaRegen => 10;
+        protected override int onHitManaRegen => ManaRegenT1;
 
         protected override int manaCost => 2;
         protected override int castUseTime => 26;
