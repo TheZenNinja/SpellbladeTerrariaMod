@@ -4,21 +4,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework;
+using SpellbladeMod.Buffs;
 using SpellbladeMod.Projectiles;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Utilities;
 
 namespace SpellbladeMod.Items.Weapons
 {
-	public enum ModMessageType : byte
-	{
-		SyncPlayer,
-		UpdateAltFunc,
-		WeaponArt
-	}
-	public abstract class SpellbladeBase : ModItem
+
+	public abstract class SpellbladeBase : SpellbladeRootItem
 	{
 		public static readonly int ManaRegenT1 = 8;
 		public static readonly int ManaRegenT2 = 16;
@@ -28,12 +25,7 @@ namespace SpellbladeMod.Items.Weapons
 		public override bool CloneNewInstances => true;
 
 		#region basic attribues
-		protected virtual int critChance { get; } = 2;
-		protected virtual float scale { get; } = 1f;
-		protected virtual int width { get; } = 32;
-		protected virtual int height { get; } = 32;
-		protected abstract int value { get; }
-        protected abstract int rarity { get; }
+		protected virtual int additiveCritChance { get; } = 0;
 		#endregion
         
 		#region melee attribues
@@ -60,19 +52,9 @@ namespace SpellbladeMod.Items.Weapons
 		protected virtual bool autoCast { get; } = true;
 		#endregion
 
-		#region Weapon Arts
-		public virtual int arcaneCost { get; } = 0;
-		public virtual bool hasWeaponArt { get; } = false;
-		protected virtual LegacySoundStyle weaponArtSound { get; } = null;
-		#endregion
-
 		public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
-			TooltipLine line = new TooltipLine(mod, "Face", SpellbladeMod.classTitleText)
-			{
-				overrideColor = SpellbladeMod.classTextColor
-			};
-			tooltips.Insert(1, line);
+			base.ModifyTooltips(tooltips);
 
 			Player p = Main.player[Main.myPlayer];
 			item.damage = swingDamage;
@@ -93,47 +75,54 @@ namespace SpellbladeMod.Items.Weapons
 			TooltipLine manaData = new TooltipLine(mod, "PrefixUseMana", $"Uses {cost} mana\nRestores {onHitManaRegen} Mana on Melee Hit");
 			tooltips.Insert(6, manaData);
 		}
-		protected void SetBasicCustomDefaults()
+
+        public override bool AllowPrefix(int pre)
+        {
+			
+
+            return base.AllowPrefix(pre);
+        }
+        public override bool? PrefixChance(int pre, UnifiedRandom rand)
+        {
+			if (pre == -1)
+				return true;
+            return base.PrefixChance(pre, rand);
+        }
+        protected override sealed void SetBasicCustomDefaults()
 		{
+			base.SetBasicCustomDefaults();
+			Item.staff[item.type] = true;
+
 			item.damage = swingDamage;
-			item.magic = true;
 			item.knockBack = swingKnockback;
-			item.mana = 0;
-			item.crit = critChance;
-
-			item.scale = scale;
-			item.width = width;
-			item.height = height;
-
+			item.crit = additiveCritChance;
+			item.magic = true;
 			item.useTime = swingUseTime;
 			item.useAnimation = swingUseTime;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.autoReuse = autoSwing;
-			Item.staff[item.type] = true;
-
-			item.value = value;
-			item.rare = rarity;
 
 			item.shoot = projectileID;
 			item.shootSpeed = projectileSpeed;
 		}
-		public override bool AltFunctionUse(Player player) => true;
-		public override bool CanUseItem(Player player)
+		public override void HoldItem(Player player)
+        {
+            base.HoldItem(player);
+			player.AddBuff(ModContent.BuffType<ArcaneCurse>(), 60);
+        }
+        public override bool CanUseItem(Player player)
 		{
 			SpellbladePlayer sp = player.GetModPlayer<SpellbladePlayer>();
-			{
-				if (SpellbladePlayer.CanUseItemAlt(player, Main.myPlayer == player.whoAmI))
-					if (player.GetManaCost(item) > player.statMana)
-						return false;
-			}
+			SpellbladePlayer.SetItemAltUse(player, Main.myPlayer == player.whoAmI);
 
-			
 			if (sp.altWeaponFunc)
 				OnRightClick(player);
 			else
 				OnLeftClick(player);
 
 			//Main.NewText($"-Spellblade- Player: {Main.player[player.whoAmI].name} AltFunc = {sp.altWeaponFunc}");
+			if (player.GetManaCost(item) > player.statMana)
+				return false;
 
 			return true;
 		}
@@ -180,11 +169,12 @@ namespace SpellbladeMod.Items.Weapons
 		}
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
 		{
-			if (player.altFunctionUse != 2)
+			SpellbladePlayer sp = player.GetModPlayer<SpellbladePlayer>();
+			if (!sp.altWeaponFunc)
 			{
 				player.statMana += (int)Math.Round((float)damage / swingDamage * onHitManaRegen);
 			}
-			player.GetModPlayer<SpellbladePlayer>().TryToGainArcane();
+			sp.TryToGainArcane();
 		}
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
 		{
@@ -201,11 +191,6 @@ namespace SpellbladeMod.Items.Weapons
 			speedX = speed.X;
 			speedY = speed.Y;
 			return true;
-		}
-        public virtual void WeaponArt(Player player)
-		{
-			if (!hasWeaponArt)
-				return;
 		}
 	}
 }

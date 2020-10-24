@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace SpellbladeMod.Items
 {
-	public class IntermediateArcaneFragment : ModItem
+	public class CelestialArcaneFragment : ModItem
 	{
 		public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
@@ -16,7 +16,7 @@ namespace SpellbladeMod.Items
 			};
 			tooltips.Insert(1, line);
 
-			TooltipLine manaRestore = new TooltipLine(mod, "Tooltip0", "Resonates with arcane energy");
+			TooltipLine manaRestore = new TooltipLine(mod, "Tooltip0", "Vibrates in tune with reality");
 			tooltips.Add(manaRestore);
 		}
 
@@ -25,8 +25,8 @@ namespace SpellbladeMod.Items
 			item.width = 20;
 			item.height = 20;
 			item.maxStack = 999;
-			item.value = Item.sellPrice(silver:10);
-			item.rare = ItemRarityID.Orange;
+			item.value = Item.sellPrice(gold:5);
+			item.rare = ItemRarityID.Red;
 		}
 	}
 }

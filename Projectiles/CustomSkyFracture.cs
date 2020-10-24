@@ -20,13 +20,14 @@ namespace SpellbladeMod.Projectiles
 			//projectile.CloneDefaults(ProjectileID.SkyFracture);
 			projectile.width = 8;
 			projectile.height = 8;
+			projectile.magic = true;
 			projectile.friendly = true;
 			projectile.hostile = false;
 			projectile.light = 0.75f;
 			projectile.penetrate = 1;
 			projectile.timeLeft = 300;
 			projectile.ignoreWater = true;
-			projectile.tileCollide = false;
+			projectile.tileCollide = true;
 			aiType = 14;
 			projectile.light = 0.25f;
 			projectile.gfxOffY = 16;
@@ -41,7 +42,14 @@ namespace SpellbladeMod.Projectiles
 
 		public override void AI()
 		{
-			if (projectile.ai[1] == 0f)
+            switch (projectile.ai[0])
+            {
+				case 1:
+					projectile.tileCollide = false;
+					break;
+            }
+
+            if (projectile.ai[1] == 0f)
 			{
 				projectile.ai[1] = 1f;
 				Main.PlaySound(SoundID.Item9, projectile.Center);
@@ -97,9 +105,9 @@ namespace SpellbladeMod.Projectiles
 				texture,
 				projectile.Center - Main.screenPosition,
 				sourceRectangle,
-				new Color(baseColor.R, baseColor.G, baseColor.G, 50),
+				new Color(baseColor.R, baseColor.G, baseColor.G, 200),
 				projectile.rotation,
-				origin - new Vector2(-1, 1) * Vector2.Distance(projectile.position, projectile.oldPosition) * 1.25f,//MathHelper.Clamp(Vector2.Distance(projectile.position, projectile.oldPos[0]), 1, 8),
+				origin - new Vector2(-1, 1) * Vector2.Distance(projectile.position, -projectile.oldPosition) * 1.25f,//MathHelper.Clamp(Vector2.Distance(projectile.position, projectile.oldPos[0]), 1, 8),
 				projectile.scale * 1.1f,
 				spriteEffects,
 				0

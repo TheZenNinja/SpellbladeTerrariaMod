@@ -21,6 +21,10 @@ namespace SpellbladeMod
 
 		// Here we include a custom resource, similar to mana or health.
 		// Creating some variables to define the current value of our example resource as well as the current maximum value. We also include a temporary max value, as well as some variables to handle the natural regeneration of this resource.
+
+		public bool arcaneCurse = false;
+		public bool swordProtect = false;
+
 		public int arcanePowerCurrent;
 		public const int DefaulArcanePower = 5;
 		public int arcanePowerMax;
@@ -32,8 +36,6 @@ namespace SpellbladeMod
 		internal int arcaneGainCooldownTimer = 0;
 
 		public bool altWeaponFunc = false;
-
-
 		//public static readonly Color HealExampleResource = new Color(187, 91, 201); // We can use this for CombatText, if you create an item that replenishes exampleResourceCurrent.
 
 		/*
@@ -43,7 +45,6 @@ namespace SpellbladeMod
 		- Save/Load and increased max resource: You'll need to implement Save/Load to remember increases to your exampleResourceMax cap.
 		- Resouce replenishment item: Use GlobalNPC.NPCLoot to drop the item. ModItem.OnPickup and ModItem.ItemSpace will allow it to behave like Mana Star or Heart. Use code similar to Player.HealEffect to spawn (and sync) a colored number suitable to your resource.
 		*/
-
 		public override void Initialize()
 		{
 			arcanePowerMax = DefaulArcanePower;
@@ -65,8 +66,9 @@ namespace SpellbladeMod
 			arcanePowerGainRate = 1;
 			arcaneGainCooldownMulti = 1f;
 			arcanePowerMax2 = arcanePowerMax;
+			arcaneCurse = false;
+			swordProtect = false;
 		}
-
 		public override void PostUpdateMiscEffects()
 		{
 			UpdateResource();
@@ -96,6 +98,8 @@ namespace SpellbladeMod
 			clone.arcanePowerMax = arcanePowerMax;
 			clone.arcanePowerMax2 = arcanePowerMax2;
 			clone.altWeaponFunc = altWeaponFunc;
+			clone.arcaneCurse = arcaneCurse;
+			clone.swordProtect = swordProtect;
 		}
 
 		public void ForceAltUse()
@@ -103,9 +107,7 @@ namespace SpellbladeMod
 			player.altFunctionUse = 2;
 			player.HeldItem.modItem.CanUseItem(player);
 		}
-
-		//thank you weaponout mod dev, you saved my life here
-		public static bool CanUseItemAlt(Player player, bool forcePush)
+		public static void SetItemAltUse(Player player, bool forcePush)
 		{
 			SpellbladePlayer p = player.GetModPlayer<SpellbladePlayer>();
 
@@ -127,9 +129,36 @@ namespace SpellbladeMod
 					packet.Send();
 				}
 			}
-			//Main.NewText($"-PlayerMod- Player: {Main.player[player.whoAmI].name} AltFunc = {p.altWeaponFunc}");
+		}
+        public override void GetHealMana(Item item, bool quickHeal, ref int healValue)
+        {
+			if (arcaneCurse)
+				healValue *= 0;
 
-			return player.altFunctionUse == 2;
+            base.GetHealMana(item, quickHeal, ref healValue);
+        }
+        public static void SwapItemAltUse(Player player, bool forcePush)
+		{
+			SpellbladePlayer p = player.GetModPlayer<SpellbladePlayer>();
+
+			p.altWeaponFunc = !p.altWeaponFunc;
+
+			if (Main.netMode != NetmodeID.SinglePlayer)
+			{
+				ModPacket packet = p.mod.GetPacket();
+				packet.Write((byte)ModMessageType.AltFuncUpdate);
+				packet.Write((byte)player.whoAmI);
+				packet.Write(p.altWeaponFunc);
+				packet.Send();
+
+				if (forcePush && p.altWeaponFunc)
+				{
+					packet = p.mod.GetPacket();
+					packet.Write((byte)ModMessageType.ForceAltUse);
+					packet.Write((byte)player.whoAmI);
+					packet.Send();
+				}
+			}
 		}
 		
         public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
@@ -141,11 +170,17 @@ namespace SpellbladeMod
 			packet.Write(arcanePowerMax);
 			packet.Write(arcanePowerMax2);
 			packet.Write(altWeaponFunc);
+			packet.Write(arcaneCurse);
+			packet.Write(swordProtect);
 			packet.Send(toWho, fromWho);
 		}
 
-		/*public override void DrawEffects(PlayerDrawInfo drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
+		public static bool debug = false;
+		public override void DrawEffects(PlayerDrawInfo drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
 		{
+			if (!debug)
+				return;
+
 			if (altWeaponFunc && drawInfo.shadow == 0f && Main.rand.NextBool(6)) // checking shadow == 0 helps avoid spawning extra dust because of extra shadow draws.
 			{
 				int dustIndex = Dust.NewDust(drawInfo.position + new Vector2(drawInfo.drawPlayer.width / 2 - 2, -30), 4, 4, 219, 0f, 0f, 100, default(Color), 1f);
@@ -155,7 +190,7 @@ namespace SpellbladeMod
 				dust.scale = 1f + Main.rand.NextFloat(-.030f, .031f);
 				Main.playerDrawDust.Add(dustIndex);
 			}
-		}*/
+		}
 		/// <summary>
 		/// Tests if the player can gain arcane power and adds it if they can
 		/// </summary>
@@ -173,9 +208,9 @@ namespace SpellbladeMod
 		{
 			if (SpellbladeMod.WeaponArtKey.JustPressed)
 			{
-				if (!(Main.LocalPlayer.HeldItem.modItem is SpellbladeBase))
+				if (!(Main.LocalPlayer.HeldItem.modItem is SpellbladeRootItem))
 					return;
-				SpellbladeBase s = player.HeldItem.modItem as SpellbladeBase;
+				var s = player.HeldItem.modItem as SpellbladeRootItem;
 				if (!s.hasWeaponArt)
 					return;
 				if (ModPlayer(player).arcanePowerCurrent < s.arcaneCost)

@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +13,6 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 using SpellbladeMod.UI;
-using SpellbladeMod.Items.Weapons.Metal;
 
 namespace SpellbladeMod
 {
@@ -22,7 +20,8 @@ namespace SpellbladeMod
 	{
 		SyncPlayer,
 		AltFuncUpdate,
-		ForceAltUse
+		ForceAltUse,
+		WeaponArt
 	}
 	public class SpellbladeMod : Mod
 	{
@@ -47,12 +46,16 @@ namespace SpellbladeMod
 				ArcaneBar = new ArcaneResourceUI();
 				_arcaneBarUserInterface = new UserInterface();
 				_arcaneBarUserInterface.SetState(ArcaneBar);
+
 			}
 		}
 		public override void Unload()
 		{
 			instance = null;
 			WeaponArtKey = null;
+
+			ArcaneBar = null;
+			_arcaneBarUserInterface = null;
 		}
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI)
@@ -70,6 +73,8 @@ namespace SpellbladeMod
 					player.arcanePowerMax = max;
 					player.arcanePowerMax2 = max2;
 					player.altWeaponFunc = reader.ReadBoolean();
+					player.arcaneCurse = reader.ReadBoolean();
+					player.swordProtect = reader.ReadBoolean();
 					// SyncPlayer will be called automatically, so there is no need to forward this data to other clients.
 					break;
 				case ModMessageType.AltFuncUpdate:
@@ -154,6 +159,33 @@ namespace SpellbladeMod
 			RecipeManager.AddIngredientRecipies(this);
 			RecipeManager.AddWoodenRecipies(this);
 			RecipeManager.AddMetalRecipies(this);
+			RecipeManager.AddMiscPreHardRecipies(this);
+			RecipeManager.AddHardmodeMetals(this);
+		}
+
+
+		public static Vector2 RaycastToPosition(Vector2 position1, Vector2 size1, Vector2 position2, Vector2 size2)
+		{
+			Vector2 dir = Vector2.Normalize(position2 - position1);
+			int maxDist = (int)Vector2.Distance(position2, position1);
+
+			for (int i = 0; i < maxDist; i++)
+				if (!Collision.CanHit(position1, (int)size1.X, (int)size1.Y, position2 + dir * i, (int)size2.X, (int)size2.Y))
+					return position1 + dir * i;
+
+			return position2;
+		}
+
+		public static float SquareMagnitude(Vector2 vector)
+		{
+			return vector.X * vector.X + vector.Y * vector.Y;
+		}
+		public static Vector2 ClampMagnitude(Vector2 vector, int maxMagnitude)
+		{
+			if (SquareMagnitude(vector) > maxMagnitude * maxMagnitude)
+				return Vector2.Normalize(vector) * maxMagnitude;
+
+			return vector;
 		}
 	}
 }

@@ -1,10 +1,11 @@
 ﻿using Terraria.ID;
 using Terraria.ModLoader;
 using SpellbladeMod.Items.Weapons;
-using SpellbladeMod.Items.Weapons.Wooden;
-using SpellbladeMod.Items.Weapons.Metal;
+using SpellbladeMod.Items.Weapons.PreHardmode.Wooden;
+using SpellbladeMod.Items.Weapons.PreHardmode.Metal;
 using SpellbladeMod.Items;
 using SpellbladeMod.Items.Weapons.PreHardmode;
+using SpellbladeMod.Items.Weapons.Hardmode.Metal;
 
 namespace SpellbladeMod
 {
@@ -50,6 +51,43 @@ namespace SpellbladeMod
             recipe.AddIngredient(ItemID.HellstoneBar, 4);
             recipe.AddIngredient(ItemID.Diamond, 1);
             recipe.SetResult(ModContent.ItemType<IntermediateArcaneFragment>());
+            recipe.AddRecipe();
+            //greater
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.MythrilBar, 4);
+            recipe.AddIngredient(ItemID.SoulofLight, 4);
+            recipe.AddIngredient(ItemID.SoulofNight, 4);
+            recipe.SetResult(ModContent.ItemType<GreaterArcaneFragment>());
+            recipe.AddRecipe();
+
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.OrichalcumBar, 4);
+            recipe.AddIngredient(ItemID.SoulofLight, 4);
+            recipe.AddIngredient(ItemID.SoulofNight, 4);
+            recipe.SetResult(ModContent.ItemType<GreaterArcaneFragment>());
+            recipe.AddRecipe();
+            //complex
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.HallowedBar, 4);
+            recipe.AddIngredient(ItemID.SoulofFright, 4);
+            recipe.AddIngredient(ItemID.SoulofMight, 4);
+            recipe.AddIngredient(ItemID.SoulofSight, 4);
+            recipe.SetResult(ModContent.ItemType<ComplexArcaneFragment>());
+            recipe.AddRecipe();
+            //mystic
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.ChlorophyteBar, 4);
+            recipe.AddIngredient(ItemID.AncientBattleArmorMaterial); //forbidden fragment
+            recipe.SetResult(ModContent.ItemType<MysticArcaneFragment>());
+            recipe.AddRecipe();
+            //celestial
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.LunarBar, 4);
+            recipe.AddIngredient(ItemID.FragmentNebula, 4);
+            recipe.AddIngredient(ItemID.FragmentSolar, 4);
+            recipe.AddIngredient(ItemID.FragmentStardust, 4);
+            recipe.AddIngredient(ItemID.FragmentVortex, 4);
+            recipe.SetResult(ModContent.ItemType<CelestialArcaneFragment>());
             recipe.AddRecipe();
             #endregion
         }
@@ -206,7 +244,6 @@ namespace SpellbladeMod
             recipe.SetResult(ModContent.ItemType<MeteoriteBlade>());
             recipe.AddRecipe();
         }
-
         public static void AddMiscPreHardRecipies(Mod mod)
         {
             ModRecipe recipe;
@@ -244,6 +281,72 @@ namespace SpellbladeMod
             recipe.AddTile(TileID.Anvils);
             recipe.SetResult(ModContent.ItemType<BeeBlade>());
             recipe.AddRecipe();
+            //Granite
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.GraniteBlock, 50);
+            recipe.AddIngredient(ItemID.SpecularFish, 5);
+            recipe.AddIngredient(ModContent.ItemType<IntermediateArcaneFragment>(), 2);
+            recipe.AddTile(TileID.Anvils);
+            recipe.SetResult(ModContent.ItemType<GraniteBlade>());
+            recipe.AddRecipe();
+            //marble
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.MarbleBlock, 50);
+            recipe.AddIngredient(ItemID.Javelin, 50);
+            recipe.AddIngredient(ModContent.ItemType<IntermediateArcaneFragment>(), 2);
+            recipe.AddTile(TileID.Anvils);
+            recipe.SetResult(ModContent.ItemType<MarbleBlade>());
+            recipe.AddRecipe();
+        }
+
+        public static void AddHardmodeMetals(Mod mod)
+        { 
+            ModRecipe recipe;
+            //cobalt
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.CobaltBar, 12);
+            recipe.AddIngredient(ItemID.SoulofFlight, 5);
+            recipe.AddIngredient(ModContent.ItemType<GreaterArcaneFragment>(), 2);
+            recipe.AddTile(TileID.Anvils);
+            recipe.SetResult(ModContent.ItemType<CobaltSpellblade>());
+            recipe.AddRecipe();
+            //palladium
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.PalladiumBar, 12);
+            recipe.AddIngredient(ItemID.SoulofFlight, 5);
+            recipe.AddIngredient(ModContent.ItemType<GreaterArcaneFragment>(), 2);
+            recipe.AddTile(TileID.Anvils);
+            recipe.SetResult(ModContent.ItemType<PalladiumSpellblade>());
+            recipe.AddRecipe();
+            //mythril
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.MythrilBar, 12);
+            recipe.AddIngredient(ItemID.SoulofSight, 5);
+            recipe.AddIngredient(ModContent.ItemType<GreaterArcaneFragment>(), 2);
+            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.SetResult(ModContent.ItemType<IronBlade>());
+            recipe.AddRecipe();
+            //adamantite
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.AdamantiteBar, 12);
+            recipe.AddIngredient(ItemID.SoulofMight, 5);
+            recipe.AddIngredient(ModContent.ItemType<GreaterArcaneFragment>(), 2);
+            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.SetResult(ModContent.ItemType<IronBlade>());
+            recipe.AddRecipe();
+            //titanium
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.TitaniumBar, 12);
+            recipe.AddIngredient(ItemID.SoulofMight, 5);
+            recipe.AddIngredient(ModContent.ItemType<GreaterArcaneFragment>(), 2);
+            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.SetResult(ModContent.ItemType<TitaniumSpellblade>());
+            recipe.AddRecipe();
+        }
+        public static void AddExoticHardMetals(Mod mod)
+        { 
+            ModRecipe recipe;
+
         }
     }
 }

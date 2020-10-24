@@ -8,6 +8,8 @@ using Terraria;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria.Audio;
+using Terraria.ModLoader;
+using SpellbladeMod.Projectiles;
 
 namespace SpellbladeMod.Items.Weapons.PreHardmode
 {
@@ -21,12 +23,13 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode
         protected override int onHitManaRegen => SpellbladeBase.ManaRegenT3;
 
         protected override int manaCost => 24;
-        protected override int castUseTime => 18;
-        protected override int projectileID => ProjectileID.DemonScythe;
-        protected override LegacySoundStyle castSound => new LegacySoundStyle(2, 8);
+        protected override int castUseTime => 4;
+        protected override int castUseAnimationTime => 45;
+        protected override int projectileID => 0;
+        protected override LegacySoundStyle castSound => new LegacySoundStyle(2, 92);
         protected override int projectileDamage => 40;
         protected override float projectileKockback => 3;
-        protected override int projectileSpeed => 1;
+        protected override int projectileSpeed => 35;
 
         public static short customGlowMask = 0;
         public override void SetStaticDefaults()
@@ -41,11 +44,6 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode
             SetBasicCustomDefaults();
             item.width = 48;
             item.height = 48;
-            item.glowMask = customGlowMask;
-        }
-        public override void OnRightClick(Player player)
-        {
-            base.OnRightClick(player);
             item.glowMask = customGlowMask;
         }
         public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
@@ -68,5 +66,31 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode
 				0f
 			);
 		}
-	}
+
+
+        public override void OnRightClick(Player player)
+        {
+            Vector2 dir = Vector2.Normalize(Main.MouseWorld - player.position);
+            Vector2 pos = SpellbladeMod.RaycastToPosition(player.position, player.Size, player.position + dir * 16 * 64, player.Size);
+            Main.PlaySound(castSound, player.position);
+
+            player.direction = dir.X > 0 ? 1 : -1;
+            player.position = pos;
+            if (player.whoAmI == Main.myPlayer)
+                Main.SetCameraLerp(0.1f, 30);
+
+            int id = Projectile.NewProjectile(player.position, dir * -projectileSpeed, ProjectileID.DD2SquireSonicBoom, projectileDamage, projectileKockback, Main.myPlayer);
+        }
+
+        /*public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
+        {
+            Vector2 dir = Vector2.Normalize(Main.MouseWorld - player.position);
+
+            Vector2 pos = SpellbladeMod.RaycastToPosition(player.position, player.Size, player.position + dir * 128, player.Size);
+
+            player.position = pos;
+
+            return false;
+        }*/
+    }
 }
