@@ -44,7 +44,6 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode.Metal
         {
             //if (Main.rand.NextBool(4))
             target.AddBuff(BuffID.Poisoned, Main.rand.Next(30, 60));
-
             base.OnHitNPC(player, target, damage, knockBack, crit);
         }
         public override void SetDefaults()

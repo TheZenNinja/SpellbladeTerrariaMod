@@ -41,7 +41,6 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode.Metal
         public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
         {
             base.OnHitNPC(player, target, damage, knockBack, crit);
-            if (player.altFunctionUse == 0)
                 if (Main.rand.NextBool(2))
                     target.AddBuff(BuffID.OnFire, Main.rand.Next(60, 90));
         }

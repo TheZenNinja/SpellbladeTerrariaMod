@@ -36,9 +36,9 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode.Metal
         {
             SetBasicCustomDefaults();
         }
-        public override void OnRightClick(Player player)
+        public override void OnLeftClick(Player player)
         {
-            base.OnRightClick(player);
+            base.OnLeftClick(player);
             Item.staff[item.type] = false;
             item.useStyle = ItemUseStyleID.SwingThrow;
             item.reuseDelay = 0;

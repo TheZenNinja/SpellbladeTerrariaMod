@@ -35,54 +35,21 @@ namespace SpellbladeMod.Items.Weapons.Hardmode
             DisplayName.SetDefault("Caliburn");
             Tooltip.SetDefault("Switch between a beam of holy light and normal sword with <right>.");
         }
-        public override void HoldItem(Player player)
+        public override void OnLeftClick(Player player)
         {
-            base.HoldItem(player);
-            if (player.whoAmI == Main.myPlayer && Main.mouseRightRelease)
-                if (!Main.mouseLeft && Main.mouseRight)
-                    SwapMode(player);
+            base.OnLeftClick(player);
+            item.channel = true;
         }
-        public override bool CanUseItem(Player player)
+        public override void OnRightClick(Player player)
         {
-            SpellbladePlayer sp = player.GetModPlayer<SpellbladePlayer>();
-            if (Main.netMode == NetmodeID.MultiplayerClient)
-            {
-                if (sp.altWeaponFunc)
-                    OnRightClick(player);
-                else
-                    OnLeftClick(player);
-
-            }
-            if (player.altFunctionUse == 2)
-                return false;
-            if (player.GetManaCost(item) > player.statMana)
-                return false;
-
-            return true;
-        }
-        public void SwapMode(Player player)
-        {
-            Main.PlaySound(SoundID.Item9, player.position);
-            SpellbladePlayer.SwapItemAltUse(player, true);
-
-            if (player.GetModPlayer<SpellbladePlayer>().altWeaponFunc)
-                OnRightClick(player);
-            else
-                OnLeftClick(player);
+            base.OnRightClick(player);
+            item.channel = false;
         }
         public override void SetDefaults()
         {
             SetBasicCustomDefaults();
             item.width = 64;
             item.height = 64;
-            item.channel = true;
-            OnLeftClick(null);
-        }
-        public override void OnLeftClick(Player player)
-        {
-            base.OnLeftClick(player);
-            if (player != null)
-                player.channel = false;
         }
     }
 }

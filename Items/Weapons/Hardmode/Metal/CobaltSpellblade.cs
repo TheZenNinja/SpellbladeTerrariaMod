@@ -44,6 +44,11 @@ namespace SpellbladeMod.Items.Weapons.Hardmode.Metal
         public override void OnLeftClick(Player player)
         {
             base.OnLeftClick(player);
+            item.alpha = 255;
+        }
+        public override void OnRightClick(Player player)
+        {
+            base.OnRightClick(player);
             item.alpha = 0;
         }
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
@@ -60,11 +65,6 @@ namespace SpellbladeMod.Items.Weapons.Hardmode.Metal
                 SpriteEffects.None,
                 0
             );
-        }
-        public override void OnRightClick(Player player)
-        {
-            base.OnRightClick(player);
-            item.alpha = 255;
         }
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
         {

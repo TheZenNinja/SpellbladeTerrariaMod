@@ -15,7 +15,7 @@ using Terraria.Utilities;
 namespace SpellbladeMod.Items.Weapons
 {
 
-	public abstract class SpellbladeBase : SpellbladeRootItem
+	public abstract class SpellbladeBase : ModItem
 	{
 		public static readonly int ManaRegenT1 = 8;
 		public static readonly int ManaRegenT2 = 16;
@@ -26,10 +26,15 @@ namespace SpellbladeMod.Items.Weapons
 
 		#region basic attribues
 		protected virtual int additiveCritChance { get; } = 0;
+		protected virtual float scale { get; } = 1f;
+		protected virtual int width { get; } = 32;
+		protected virtual int height { get; } = 32;
+		protected abstract int value { get; }
+		protected abstract int rarity { get; }
 		#endregion
-        
+
 		#region melee attribues
-        protected abstract int swingDamage { get; }
+		protected abstract int swingDamage { get; }
 		protected abstract float swingKnockback { get; }
 		protected abstract int swingUseTime { get; }
 		protected virtual Terraria.Audio.LegacySoundStyle swingSound { get; } = SoundID.Item1;
@@ -52,9 +57,19 @@ namespace SpellbladeMod.Items.Weapons
 		protected virtual bool autoCast { get; } = true;
 		#endregion
 
+		#region Weapon Arts
+		public virtual int arcaneCost { get; } = 0;
+		public virtual bool hasWeaponArt { get; } = false;
+		protected virtual LegacySoundStyle weaponArtSound { get; } = null;
+		#endregion
+
 		public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
-			base.ModifyTooltips(tooltips);
+			TooltipLine line = new TooltipLine(mod, "Face", SpellbladeMod.classTitleText)
+			{
+				overrideColor = SpellbladeMod.classTextColor
+			};
+			tooltips.Insert(1, line);
 
 			Player p = Main.player[Main.myPlayer];
 			item.damage = swingDamage;
@@ -62,7 +77,7 @@ namespace SpellbladeMod.Items.Weapons
 			item.damage = projectileDamage;
 			int projDmg = p.GetWeaponDamage(item);
 
-			TooltipLine damageReplacement = new TooltipLine(mod, "Damage", $"{swingDmg} ({projDmg}) Magic Damage");
+			TooltipLine damageReplacement = new TooltipLine(mod, "Damage", $"{projDmg} ({swingDmg}) Magic Damage");
 			int dmgIndex = tooltips.FindIndex(t => t.Name == "Damage");
 			tooltips[dmgIndex] = damageReplacement;
 
@@ -75,11 +90,8 @@ namespace SpellbladeMod.Items.Weapons
 			TooltipLine manaData = new TooltipLine(mod, "PrefixUseMana", $"Uses {cost} mana\nRestores {onHitManaRegen} Mana on Melee Hit");
 			tooltips.Insert(6, manaData);
 		}
-
         public override bool AllowPrefix(int pre)
         {
-			
-
             return base.AllowPrefix(pre);
         }
         public override bool? PrefixChance(int pre, UnifiedRandom rand)
@@ -88,9 +100,21 @@ namespace SpellbladeMod.Items.Weapons
 				return true;
             return base.PrefixChance(pre, rand);
         }
-        protected override sealed void SetBasicCustomDefaults()
+        public override bool AltFunctionUse(Player player) => true;
+        protected void SetBasicCustomDefaults()
 		{
-			base.SetBasicCustomDefaults();
+			item.magic = true;
+			item.mana = 0;
+
+			item.scale = scale;
+			item.width = width;
+			item.height = height;
+
+			Item.staff[item.type] = true;
+
+			item.value = value;
+			item.rare = rarity;
+
 			Item.staff[item.type] = true;
 
 			item.damage = swingDamage;
@@ -128,23 +152,6 @@ namespace SpellbladeMod.Items.Weapons
 		}
         public virtual void OnLeftClick(Player player)
 		{
-			//Item.staff[item.type] = false;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.useTime = swingUseTime;
-			item.useAnimation = swingUseTime;
-			item.UseSound = swingSound;
-			item.damage = swingDamage;
-			item.reuseDelay = 0;
-			item.noMelee = false;
-			item.knockBack = swingKnockback;
-			item.mana = 0;
-
-			item.shoot = ProjectileID.None;
-			//item.useTurn = true;
-			item.autoReuse = autoSwing;
-		}
-        public virtual void OnRightClick(Player player)
-		{
 			//Item.staff[item.type] = true;
 			item.useStyle = castUseStyle;
 			item.useTime = castUseTime;
@@ -166,11 +173,29 @@ namespace SpellbladeMod.Items.Weapons
 			item.shoot = projectileID;
 			item.useTurn = false;
 			item.autoReuse = autoCast;
+			
+		}
+        public virtual void OnRightClick(Player player)
+		{
+			//Item.staff[item.type] = false;
+			item.useStyle = ItemUseStyleID.SwingThrow;
+			item.useTime = swingUseTime;
+			item.useAnimation = swingUseTime;
+			item.UseSound = swingSound;
+			item.damage = swingDamage;
+			item.reuseDelay = 0;
+			item.noMelee = false;
+			item.knockBack = swingKnockback;
+			item.mana = 0;
+
+			item.shoot = ProjectileID.None;
+			//item.useTurn = true;
+			item.autoReuse = autoSwing;
 		}
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
 		{
 			SpellbladePlayer sp = player.GetModPlayer<SpellbladePlayer>();
-			if (!sp.altWeaponFunc)
+			if (sp.altWeaponFunc)
 			{
 				player.statMana += (int)Math.Round((float)damage / swingDamage * onHitManaRegen);
 			}
@@ -191,6 +216,11 @@ namespace SpellbladeMod.Items.Weapons
 			speedX = speed.X;
 			speedY = speed.Y;
 			return true;
+		}
+		public virtual void WeaponArt(Player player)
+		{
+			if (!hasWeaponArt)
+				return;
 		}
 	}
 }

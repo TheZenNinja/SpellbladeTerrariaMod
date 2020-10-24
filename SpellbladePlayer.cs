@@ -208,9 +208,9 @@ namespace SpellbladeMod
 		{
 			if (SpellbladeMod.WeaponArtKey.JustPressed)
 			{
-				if (!(Main.LocalPlayer.HeldItem.modItem is SpellbladeRootItem))
+				if (!(Main.LocalPlayer.HeldItem.modItem is SpellbladeBase))
 					return;
-				var s = player.HeldItem.modItem as SpellbladeRootItem;
+				var s = player.HeldItem.modItem as SpellbladeBase;
 				if (!s.hasWeaponArt)
 					return;
 				if (ModPlayer(player).arcanePowerCurrent < s.arcaneCost)

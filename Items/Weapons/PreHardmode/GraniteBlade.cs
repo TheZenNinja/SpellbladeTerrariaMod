@@ -67,8 +67,7 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode
 			);
 		}
 
-
-        public override void OnRightClick(Player player)
+        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
         {
             Vector2 dir = Vector2.Normalize(Main.MouseWorld - player.position);
             Vector2 pos = SpellbladeMod.RaycastToPosition(player.position, player.Size, player.position + dir * 16 * 64, player.Size);
@@ -80,17 +79,8 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode
                 Main.SetCameraLerp(0.1f, 30);
 
             int id = Projectile.NewProjectile(player.position, dir * -projectileSpeed, ProjectileID.DD2SquireSonicBoom, projectileDamage, projectileKockback, Main.myPlayer);
-        }
-
-        /*public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
-        {
-            Vector2 dir = Vector2.Normalize(Main.MouseWorld - player.position);
-
-            Vector2 pos = SpellbladeMod.RaycastToPosition(player.position, player.Size, player.position + dir * 128, player.Size);
-
-            player.position = pos;
 
             return false;
-        }*/
+        }
     }
 }

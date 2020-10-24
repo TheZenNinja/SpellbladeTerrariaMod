@@ -40,9 +40,9 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode.Metal
         {
             SetBasicCustomDefaults();
         }
-        public override void OnRightClick(Player player)
+        public override void OnLeftClick(Player player)
         {
-            base.OnRightClick(player);
+            base.OnLeftClick(player);
             item.noMelee = false;
         }
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)

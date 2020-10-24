@@ -39,9 +39,8 @@ namespace SpellbladeMod.Items.Weapons.PreHardmode.Wooden
         public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
         {
             base.OnHitNPC(player, target, damage, knockBack, crit);
-            if (player.altFunctionUse == 2)
-                if (Main.rand.NextBool(3))
-                    target.AddBuff(BuffID.Chilled, Main.rand.Next(30, 60));
+            if (Main.rand.NextBool(3))
+                target.AddBuff(BuffID.Chilled, Main.rand.Next(30, 60));
         }
 	}
 }
